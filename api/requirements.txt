@@ -6,3 +6,4 @@ pycryptodome
 pyjwt
 cryptography
 deepface
+google-cloud-storage
