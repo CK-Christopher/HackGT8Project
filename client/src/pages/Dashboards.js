@@ -52,15 +52,16 @@ function CustomerDashboard(props) {
 }
 
 function BusinessDashboard() {
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const [showReward, setShowReward] = useState(false);
+  const [showInvoice, setShowInvoice] = useState(false);
+  const handleClose = () => setShowReward(false);
+  const handleShow = () => setShowReward(true);
   return (
     <>
       <Container className="pt-4">
         <h3 className="text-center">Business Dashboard</h3>
         <Row>
-          <Col md>
+          <Col md className="col-lg-6">
             <ListGroup>
               <h4>Customers</h4>
               <ListGroup.Item
@@ -102,9 +103,9 @@ function BusinessDashboard() {
             </ListGroup>
             <Button className="mt-2 float-right">Clear All</Button>
           </Col>
-          <Col md>
+          <Col md className="col-lg-6">
             <ListGroup>
-              <h4>Awards</h4>
+              <h4>Rewards</h4>
               <ListGroup.Item
                 as="li"
                 className="d-flex justify-content-between align-items-start award-item"
@@ -142,13 +143,67 @@ function BusinessDashboard() {
                 </Badge>
               </ListGroup.Item>
             </ListGroup>
-            <a className="btn btn-success mt-2 float-right" href="/reward/add">
+            <a className="btn btn-success my-2 float-right" href="/reward/add">
               Add New Reward
+            </a>
+          </Col>
+          <Col md>
+            <ListGroup>
+              <h4>Invoices</h4>
+              <a className="div" href="/">
+                <ListGroup.Item
+                  as="li"
+                  className="d-flex justify-content-between align-items-start invoice-item"
+                >
+                  <div className="ms-2 me-auto">
+                    <div className="fw-bold">Transaction Number: 2134</div>
+                    Recipient: Andrew Peng
+                  </div>
+                  <Badge bg="dark" pill>
+                    475
+                  </Badge>
+                </ListGroup.Item>
+              </a>
+              <a className="div" href="/">
+                <ListGroup.Item
+                  as="li"
+                  className="d-flex justify-content-between align-items-start invoice-item"
+                >
+                  <div className="ms-2 me-auto">
+                    <div className="fw-bold">Transaction Number: 2134</div>
+                    Recipient: Andrew Peng
+                  </div>
+                  <Badge bg="dark" pill>
+                    475
+                  </Badge>
+                </ListGroup.Item>
+              </a>
+              <a className="div" href="/">
+                <ListGroup.Item
+                  as="li"
+                  className="d-flex justify-content-between align-items-start invoice-item"
+                >
+                  <div className="ms-2 me-auto">
+                    <div className="fw-bold">Transaction Number: 2134</div>
+                    Recipient: Andrew Peng
+                  </div>
+                  <Badge bg="dark" pill>
+                    475
+                  </Badge>
+                </ListGroup.Item>
+              </a>
+            </ListGroup>
+            <a
+              variant="dark"
+              className="btn btn-dark mt-2 float-right"
+              href="/invoice/add"
+            >
+              Add New Invoice
             </a>
           </Col>
         </Row>
       </Container>
-      <ViewRewardModal show={show} handleClose={handleClose} />
+      <ViewRewardModal show={showReward} handleClose={handleClose} />
     </>
   );
 }
@@ -199,4 +254,4 @@ function ViewRewardModal(props) {
   );
 }
 
-export { CustomerDashboard, BusinessDashboard };
+export { CustomerDashboard, BusinessDashboard, ViewRewardModal };

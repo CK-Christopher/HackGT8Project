@@ -6,8 +6,8 @@ import { Button } from "react-bootstrap";
 import { Modal } from "react-bootstrap";
 import { useState } from "react";
 
-function RewardsEditor(props) {
-  const { rewardid } = useParams();
+function InvoiceEditor(props) {
+  const { invoiceid } = useParams();
   const { mode } = props;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [validated, setValidated] = useState(false);
@@ -30,36 +30,31 @@ function RewardsEditor(props) {
       <Container>
         <div className="reward-form-container mt-5">
           <h3 className="mt-3">
-            {mode === "add" ? "Add New Reward" : "Update Reward"}
+            {mode === "add" ? "Add New Invoice" : "Update Invoice"}
           </h3>
           <Form validated={validated} onSubmit={handleSubmit} noValidate>
             <Form.Group className="mb-3" controlId="formBasicEmail" required>
-              <Form.Label>Name</Form.Label>
+              <Form.Label>Transaction ID</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter reward name"
+                placeholder="Enter invoice transaction ID"
                 required
               />
-              <Form.Text className="text-muted">
-                Make this name appealing.
-              </Form.Text>
               <Form.Control.Feedback type="invalid">
                 Please provide a reward name.
               </Form.Control.Feedback>
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Description (Optional)</Form.Label>
-              <Form.Control
-                as="textarea"
-                placeholder="Give a description of reward"
-              />
-              <Form.Text className="text-muted">
-                Have a good description
-              </Form.Text>
+              <Form.Label>Recipient</Form.Label>
+              <Form.Select aria-label="Account Type Select" required>
+                <option value="">Select Recipient</option>
+                <option value="1">Jody Starks</option>
+                <option value="2">Bob Bill</option>
+              </Form.Select>
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Cost</Form.Label>
+              <Form.Label>Points</Form.Label>
               <Form.Control
                 type="number"
                 placeholder="Provide a cost of reward points"
@@ -67,14 +62,10 @@ function RewardsEditor(props) {
                 required
               />
               <Form.Control.Feedback type="invalid">
-                Please enter a cost greater than or equal to 1
+                Please enter points greater than or equal to 1
               </Form.Control.Feedback>
             </Form.Group>
-            <Button
-              type="submit"
-              variant="success"
-              className="float-right mx-1"
-            >
+            <Button type="submit" variant="dark" className="float-right mx-1">
               {mode === "add" ? "Add" : "Update"}
             </Button>
             {mode === "update" && (
@@ -105,9 +96,9 @@ function ConfirmDeleteModal(props) {
       keyboard={false}
     >
       <Modal.Header closeButton>
-        <Modal.Title>Reward Title</Modal.Title>
+        <Modal.Title>Transaction Number</Modal.Title>
       </Modal.Header>
-      <Modal.Body>Are you sure you wish to delete this reward?</Modal.Body>
+      <Modal.Body>Are you sure you wish to delete this invoice?</Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={props.handleClose}>
           Cancel
@@ -117,4 +108,5 @@ function ConfirmDeleteModal(props) {
     </Modal>
   );
 }
-export default RewardsEditor;
+
+export default InvoiceEditor;

@@ -2,11 +2,51 @@ import { Container, Row, Col } from "react-bootstrap";
 import { Navbar, Nav } from "react-bootstrap";
 import { CustomerDashboard, BusinessDashboard } from "./Dashboards";
 import { FormControl, InputGroup, Button } from "react-bootstrap";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Navigation from "./Navigation";
+import { UserContext } from "../App";
 
 function HomePage(props) {
-  const [customerIsUser, setCustomerIsUser] = useState(false);
+  const user = useContext(UserContext);
+  if (!user) {
+    return (
+      <>
+        <Navigation />
+        <div className="bg-image text-light">
+          <div
+            className="mask"
+            style={{ "background-color": "rgba(0, 0, 0, 0.6)" }}
+          >
+            <div className="welcome-box d-flex justify-content-center align-items-center h-100 bg-secondary">
+              <Container className="py-5">
+                <Row className="d-flex align-items-center justify-items-center">
+                  <h2>Welcome!</h2>
+                  <p className="lead">
+                    To use our services, please sign in or create a new account
+                  </p>
+                  <Row className="m-auto">
+                    <Col>
+                      <a
+                        href="/signin"
+                        className="standard-btn btn btn-outline-light"
+                      >
+                        Sign In
+                      </a>
+                    </Col>
+                    <Col>
+                      <a href="/signup" className="standard-btn btn btn-light">
+                        Create A New Account
+                      </a>
+                    </Col>
+                  </Row>
+                </Row>
+              </Container>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
   return (
     <>
       <Navigation></Navigation>
@@ -30,7 +70,11 @@ function HomePage(props) {
           </Row>
         </Container>
       </section>
-      {customerIsUser ? <CustomerDashboard /> : <BusinessDashboard />}
+      {user.account_type === "customer" ? (
+        <CustomerDashboard />
+      ) : (
+        <BusinessDashboard />
+      )}
     </>
   );
 }

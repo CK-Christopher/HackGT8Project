@@ -46,10 +46,12 @@
   height: 100%;
   margin: auto;
 }
-.award-item {
+.award-item,
+.invoice-item {
   cursor: pointer;
 }
-.award-item:hover {
+.award-item:hover,
+.invoice-item:hover {
   background-color: azure;
 }
 
@@ -57,4 +59,37 @@
   width: 500px;
   height: 100%;
   margin: auto;
+}
+
+.bg-image {
+  background: url("drmg-loyalty-program.jpg");
+
+  background-size: cover !important;
+  min-height: calc(100vh - 50px);
+}
+
+body::before {
+  display: block;
+  content: "";
+  height: 50px;
+}
+
+.mask {
+  min-height: calc(100vh - 50px);
+  position: relative;
+}
+
+.welcome-box {
+  width: 500px;
+  height: 300px !important;
+  margin: auto;
+  position: relative;
+  text-align: center;
+  top: 50%;
+  border-radius: 50;
+  transform: translate(0, 25%);
+}
+
+.standard-btn {
+  width: 200px !important;
 }
