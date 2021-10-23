@@ -140,7 +140,7 @@ def register_customer():
     return make_response(userID, 200)
 
 @auth.route("/register/business", methods=["POST"])
-def register_customer():
+def register_business():
     if 'email' not in request.form:
         return error("Missing required form parameter 'email'", code=400)
     if 'password' not in request.form:

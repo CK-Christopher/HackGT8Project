@@ -1,5 +1,6 @@
 from flask import make_response, request
 import jwt
+from functools import wraps
 
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 
@@ -27,6 +28,7 @@ def authenticated(func):
         return session['user']
     """
 
+    @wraps(func)
     def ensure_auth(*args, **kwargs):
         token = request.cookies.get('session', None)
         user = request.cookies.get('user', None)

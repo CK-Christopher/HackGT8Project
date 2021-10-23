@@ -4,7 +4,7 @@ import os
 from .conf import defaults
 from .endpoints.internal import internal
 from .endpoints.auth import auth
-from .endpoints.buiness import business
+from .endpoints.business import business
 from .endpoints.invoices import invoices
 from .endpoints.rewards import rewards
 
