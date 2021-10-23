@@ -94,7 +94,7 @@ def login():
     )
     response.set_cookie(
         'acct_type',
-        'customer' if len(results) else 'business',
+        'customer' if len(customer_results) else 'business',
         domain=current_app.config['DOMAIN'],
         secure=current_app.config['SECURE_AUTH_COOKIES'],
         httponly=False,
@@ -184,7 +184,7 @@ def register_business():
 @auth.route("/me")
 @authenticated
 def me(session):
-    return make_response(session['user'], 200)
+    return make_response('"{}"'.format(session['user']), 200)
 
 @auth.route("/logout")
 # Not authenticated
