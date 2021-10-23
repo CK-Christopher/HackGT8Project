@@ -142,9 +142,9 @@ function BusinessDashboard() {
                 </Badge>
               </ListGroup.Item>
             </ListGroup>
-            <Button variant="success" className="mt-2 float-right">
+            <a className="btn btn-success mt-2 float-right" href="/reward/add">
               Add New Reward
-            </Button>
+            </a>
           </Col>
         </Row>
       </Container>
@@ -162,15 +162,37 @@ function ViewRewardModal(props) {
       keyboard={false}
     >
       <Modal.Header closeButton>
-        <Modal.Title>Add New Reward</Modal.Title>
+        <Modal.Title>Reward Title</Modal.Title>
       </Modal.Header>
       <Form>
-        <Modal.Body></Modal.Body>
+        <Modal.Body>
+          <p className="fw-bold">Name</p>
+          <p>
+            Description: Lorem ipsum dolor sit amet consectetur adipisicing
+            elit. Architecto ullam esse enim atque modi. Consequuntur tempora
+            praesentium pariatur! Recusandae reiciendis non nisi commodi
+            possimus in! Corrupti laboriosam rem magnam iste at consequuntur
+            fuga facilis necessitatibus perferendis nam fugit temporibus nobis
+            sed, reprehenderit excepturi quia aperiam sapiente? Delectus culpa
+            quis voluptates?
+          </p>
+          <h3>
+            <Badge bg="success" size="lg" pill>
+              30
+            </Badge>
+          </h3>
+        </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={props.handleClose}>
-            Cancel
+            Close
           </Button>
-          <Button variant="primary">Understood</Button>
+          <a
+            className="btn btn-primary"
+            href="/reward/update/69"
+            variant="primary"
+          >
+            Update
+          </a>
         </Modal.Footer>
       </Form>
     </Modal>

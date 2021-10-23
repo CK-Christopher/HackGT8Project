@@ -3,10 +3,16 @@ import { useParams } from "react-router-dom";
 import Navigation from "./Navigation";
 import { Form } from "react-bootstrap";
 import { Button } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
+import { useState } from "react";
 
 function RewardsEditor(props) {
   const { rewardid } = useParams();
   const { mode } = props;
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleShow = () => setShowDeleteModal(true);
+  const handleClose = () => setShowDeleteModal(false);
 
   return (
     <>
@@ -48,14 +54,51 @@ function RewardsEditor(props) {
                 required
               />
             </Form.Group>
-            <Button type="submit" variant="success" className="float-right">
+            <Button
+              type="submit"
+              variant="success"
+              className="float-right mx-1"
+            >
               {mode === "add" ? "Add" : "Update"}
             </Button>
+            {mode === "update" && (
+              <Button
+                variant="danger"
+                className="float-right mx-1"
+                onClick={handleShow}
+              >
+                Delete
+              </Button>
+            )}
           </Form>
         </div>
       </Container>
+      <ConfirmDeleteModal
+        show={showDeleteModal}
+        handleClose={handleClose}
+      ></ConfirmDeleteModal>
     </>
   );
 }
-
+function ConfirmDeleteModal(props) {
+  return (
+    <Modal
+      show={props.show}
+      onHide={props.handleClose}
+      backdrop="static"
+      keyboard={false}
+    >
+      <Modal.Header closeButton>
+        <Modal.Title>Reward Title</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>Are you sure you wish to delete this reward?</Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={props.handleClose}>
+          Cancel
+        </Button>
+        <Button variant="danger">Delete</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
 export default RewardsEditor;

@@ -17,7 +17,7 @@ function App() {
         <Route exact path="/signin">
           <SignIn />
         </Route>
-        <Route path="/reward/add/:rewardid">
+        <Route path="/reward/add/">
           <AwardsEditor mode="add" />
         </Route>
         <Route path="/reward/update/:rewardid">
