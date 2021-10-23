@@ -105,20 +105,37 @@ function SignUp() {
 }
 
 function SignIn(props) {
+  const [validated, setValidated] = useState(false);
+  const handleSubmit = (event) => {
+    const form = event.currentTarget;
+    if (form.checkValidity() === false) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    setValidated(true);
+  };
   return (
     <Container>
       <div className="sign-form-container mt-5">
         <h2>Sign in to Rewards Vault</h2>
-        <Form>
+        <Form validated={validated} noValidate onSubmit={handleSubmit}>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
-            <Form.Control type="email" placeholder="Enter email" />
+            <Form.Control type="email" placeholder="Enter email" required />
+            <Form.Control.Feedback type="invalid">
+              Please provide a valid email address.
+            </Form.Control.Feedback>
           </Form.Group>
 
           <Form.Group className="mb-3" controlId="formBasicPassword">
             <Form.Label>Password</Form.Label>
-            <Form.Control type="password" placeholder="Password" />
+            <Form.Control type="password" placeholder="Password" required />
+            <Form.Control.Feedback type="invalid">
+              Please provide a non-empty password.
+            </Form.Control.Feedback>
           </Form.Group>
+
           <p className="lead">
             Don't have an account? <a href="/signup">Sign Up</a>
           </p>

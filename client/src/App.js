@@ -13,13 +13,13 @@ import InvoiceClaimer from "./pages/InvoiceClaimer";
 const UserContext = createContext();
 
 function App() {
-  const [user, setUser] = useState({
+  /*const [user, setUser] = useState({
     name: "Test1",
     id: "42069",
     email: "test@yahoo.com",
     account_type: "business",
-  });
-  /*const user = null;*/
+  });*/
+  const user = null;
 
   return (
     <UserContext.Provider value={user}>

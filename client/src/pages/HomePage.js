@@ -21,7 +21,7 @@ function HomePage(props) {
               <Container className="py-5">
                 <Row className="d-flex align-items-center justify-items-center">
                   <h2>Welcome!</h2>
-                  <p className="lead">
+                  <p className="lead text-white">
                     To use our services, please sign in or create a new account
                   </p>
                   <Row className="m-auto">
@@ -50,7 +50,7 @@ function HomePage(props) {
   return (
     <>
       <Navigation></Navigation>
-      <section className="bg-info">
+      <section className="bg-info text-light">
         <Container className="py-4">
           <Row className="d-flex align-items-center">
             <Col md>
