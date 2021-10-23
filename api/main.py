@@ -2,10 +2,12 @@ from flask import Flask
 import importlib
 import os
 from .conf import defaults
+from .endpoints.customer import customer
 from .endpoints.internal import internal
 from .endpoints.auth import auth
 from .endpoints.business import business
 from .endpoints.invoices import invoices
+from .endpoints.qr import qr
 from .endpoints.rewards import rewards
 
 if 'HACK_ENV' in os.environ:
@@ -22,5 +24,7 @@ app.register_blueprint(auth)
 app.register_blueprint(business)
 app.register_blueprint(invoices)
 app.register_blueprint(rewards)
+app.register_blueprint(qr)
+app.register_blueprint(customer)
 
 app.run(port=app.config['APP_PORT'])
