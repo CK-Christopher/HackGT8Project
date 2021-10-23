@@ -208,7 +208,6 @@ def add_image(session, bus_id, r_id):
     )
     image = getblob(path)
     image.upload_from_file(image_file, content_type=image_file.content_type)
-    image.make_public()
     image.reload()
     with Database.get_db() as db:
         db.insert(
