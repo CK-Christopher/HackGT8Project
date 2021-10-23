@@ -5,3 +5,4 @@ pymysql
 pycryptodome
 pyjwt
 cryptography
+google-cloud-storage

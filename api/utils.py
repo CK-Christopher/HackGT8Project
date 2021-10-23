@@ -1,6 +1,7 @@
 from flask import make_response, request, current_app
 import jwt
 from functools import wraps
+from google.cloud import storage
 
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 
@@ -15,6 +16,24 @@ def error(message, *, data=None, context=None, code=400):
         err['context'] = context
 
     return make_response(err, code)
+
+def getblob(gs_path):
+    # Simplified from https://github.com/getzlab/dalmatian/blob/master/dalmatian/core.py#L991
+    if not gs_path.startswith('gs://'):
+        raise ValueError('getblob path must start with gs://')
+    gs_path = gs_path[5:]
+    components = gs_path.split('/')
+    bucket_id = components[0]
+    bucket_path = '/'.join(components[1:])
+    print("Accessing", bucket_id, bucket_path)
+    cli = storage.Client()
+    print("client", cli)
+    bucket = cli.bucket(bucket_id)
+    print("bucket", bucket)
+    blob = bucket.blob(bucket_path)
+    print("blob", blob)
+    return blob
+    # return storage.Client().bucket(bucket_id).blob(bucket_path)
 
 def authenticated(func):
     """
