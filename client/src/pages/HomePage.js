@@ -14,15 +14,15 @@ function HomePage(props) {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
-              <Nav.Link href="#home">Home</Nav.Link>
-              <Nav.Link href="#link">Account</Nav.Link>
-              <Nav.Link href="#signin">Sign In</Nav.Link>
+              <Nav.Link href="/">Home</Nav.Link>
+              <Nav.Link href="/account">Account</Nav.Link>
+              <Nav.Link href="/signin">Sign In</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
       <section className="bg-info">
-        <Container className="py-2">
+        <Container className="py-4">
           <Row className="d-flex align-items-center">
             <Col md>
               <h2>Hello User!</h2>

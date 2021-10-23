@@ -40,3 +40,9 @@
 .float-right {
   float: right;
 }
+
+.sign-form-container {
+  width: 400px;
+  height: 100%;
+  margin: auto;
+}
