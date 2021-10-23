@@ -104,12 +104,65 @@ def view_accept_delete_invoices(session, bus_id, inv_id):
         )
     elif request.method == 'PATCH':
         # Must be customer
+        if session['account_type'] != 'customer':
+            return error(
+                "Invalid account type",
+                context="This action requires a customer account",
+                code=400
+            )
         # id must be access key
-        # claim points, then delete
-        pass
+        with Database.get_db() as db:
+            invoice = db['invoice']
+            results = db.query(
+                invoice.select.where((invoice.c.bus_id == bus_id) & (invoice.c.user_access_key == inv_id))
+            )
+            if not len(results):
+                return error(
+                    "Invoice not found",
+                    context="The access key or id provided did not match any open invoices",
+                    code=404
+                )
+            # claim points, then delete
+            with db.session.begin():
+                shops_at = db['shops_at']
+                c_data = db.query(
+                    shops_at.select.where(
+                        (shops_at.c.cust_id == session['user']) & (shops_at.c.bus_id == bus_id)
+                    )
+                )
+                db.execute(
+                    shops_at.update.where(
+                        (shops_at.c.cust_id == session['user']) & (shops_at.c.bus_id == bus_id)
+                    ).values(
+                        points=c_data['points'][0] + results['points'][0]
+                    )
+                )
+                db.execute(
+                    invoice.delete.where((invoice.c.bus_id == bus_id) & (invoice.c.user_access_key == inv_id))
+                )
+            return make_response('OK', 200)
     else:
         # Must be business
         # must be owner
+        if session['account_type'] != 'business':
+            return error(
+                "Invalid account type",
+                context="This view requires a buisness account",
+                code=400
+            )
+        if not (bus_id == 'me' or bus_id == session['user']):
+            return error(
+                "Not Authorized",
+                context="You cannot view invoices created by other businesses",
+                code=403
+            )
         # must be transaction number
         # delete invoice
-        pass
+        with Database.get_db() as db:
+            invoice = db['database']
+            db.execute(
+                invoice.delete.where(
+                    (invoice.c.bus_id == session['user']) & (invoice.c.transaction_num == inv_id)
+                )
+            )
+        return make_response('OK', 200)

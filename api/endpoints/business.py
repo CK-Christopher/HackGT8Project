@@ -87,4 +87,18 @@ def get_users(session):
     """
     This endpoint should list the users who have a relationship with this business, and their current point values
     """
-    pass
+    with Database.get_db() as db:
+        shops_at = db['shops_at']
+        results = db.query(
+            shops_at.select.where(shops_at.c.bus_id == session['user'])
+        )
+        return make_response(
+            [
+                {
+                    'user': row['cust_id'], # anonymize?
+                    'points': row['points']
+                }
+                for idx, row in results.iterrows()
+            ],
+            200
+        )
