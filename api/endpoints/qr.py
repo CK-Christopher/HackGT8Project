@@ -37,7 +37,7 @@ def getQRcode(session, bus_id, inv_id):
                     code=404
                 )
             #TODO make sure the link for the QR code is correct
-        img = qrcode.make('/business/'+bus_id+'/invoices/'+inv_id)
+        img = qrcode.make("/business/"+bus_id+"/invoices/"+inv_id)
         img.show()
         bytes_io = BytesIO()
         img.save(bytes_io, 'PNG')
