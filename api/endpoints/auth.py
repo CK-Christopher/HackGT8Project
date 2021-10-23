@@ -137,7 +137,42 @@ def register_customer():
             'customer',
             id=userID
         )
-    return make_response(userID, 200)
+    token, now = generate_session_token(userID, 'customer')
+    response = make_response(userID, 200)
+    response.set_cookie(
+        'session',
+        token,
+        max_age=AUTH_COOKIE_LIFESPAN,
+        domain=current_app.config['DOMAIN'],
+        secure=current_app.config['SECURE_AUTH_COOKIES'],
+        httponly=True,
+        samesite='Strict'
+    )
+    response.set_cookie(
+        'user',
+        userID,
+        domain=current_app.config['DOMAIN'],
+        secure=current_app.config['SECURE_AUTH_COOKIES'],
+        httponly=False,
+        samesite='Lax'
+    )
+    response.set_cookie(
+        'loggedin',
+        now.strftime(TIMESTAMP_FORMAT),
+        domain=current_app.config['DOMAIN'],
+        secure=current_app.config['SECURE_AUTH_COOKIES'],
+        httponly=False,
+        samesite='Lax'
+    )
+    response.set_cookie(
+        'acct_type',
+        'customer',
+        domain=current_app.config['DOMAIN'],
+        secure=current_app.config['SECURE_AUTH_COOKIES'],
+        httponly=False,
+        samesite='Lax'
+    )
+    return response
 
 @auth.route("/register/business", methods=["POST"])
 def register_business():
@@ -178,7 +213,42 @@ def register_business():
             id=userID,
             location=request.form['location'] # FIXME sanitize
         )
-    return make_response(userID, 200)
+    token, now = generate_session_token(userID, 'business')
+    response = make_response(userID, 200)
+    response.set_cookie(
+        'session',
+        token,
+        max_age=AUTH_COOKIE_LIFESPAN,
+        domain=current_app.config['DOMAIN'],
+        secure=current_app.config['SECURE_AUTH_COOKIES'],
+        httponly=True,
+        samesite='Strict'
+    )
+    response.set_cookie(
+        'user',
+        userID,
+        domain=current_app.config['DOMAIN'],
+        secure=current_app.config['SECURE_AUTH_COOKIES'],
+        httponly=False,
+        samesite='Lax'
+    )
+    response.set_cookie(
+        'loggedin',
+        now.strftime(TIMESTAMP_FORMAT),
+        domain=current_app.config['DOMAIN'],
+        secure=current_app.config['SECURE_AUTH_COOKIES'],
+        httponly=False,
+        samesite='Lax'
+    )
+    response.set_cookie(
+        'acct_type',
+        'business',
+        domain=current_app.config['DOMAIN'],
+        secure=current_app.config['SECURE_AUTH_COOKIES'],
+        httponly=False,
+        samesite='Lax'
+    )
+    return response
 
 @auth.route("/password", methods=["PATCH"])
 @authenticated

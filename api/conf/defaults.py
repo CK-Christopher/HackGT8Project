@@ -9,3 +9,4 @@ DB_TABLES=[
     'rewards_images',
     'user_faces'
 ]
+SSL_CONTEXT=None
