@@ -38,10 +38,10 @@ def login():
     Checks for email & password in formdata
     """
     if 'email' not in request.form:
-        return utils.error("Missing required form parameter 'email'", code=400)
+        return error("Missing required form parameter 'email'", code=400)
     if 'password' not in request.form:
-        return utils.error("Missing required form parameter 'password'", code=400)
-    email_hash = hashlib.sha256(request.form['email'].encode()).hexdigest()
+        return error("Missing required form parameter 'password'", code=400)
+    email_hash = sha256(request.form['email'].encode()).hexdigest()
     with Database.get_db() as db:
         user = db['user']
         results = db.query(
@@ -50,16 +50,16 @@ def login():
             )
         )
     if not len(results):
-        return utils.error("No user found with that email/password combination", code=404)
+        return error("No user found with that email/password combination", code=404)
     assert len(results) == 1, "Email hash collision!"
     print(request.form)
     try:
         bcrypt_check(
-            b85encode(hashlib.sha256(request.form['password'].encode()).digest()), # shorten to 40 bcryptable bytes
+            b85encode(sha256(request.form['password'].encode()).digest()), # shorten to 40 bcryptable bytes
             results['pw_hash'][0]
         )
     except ValueError:
-        return utils.error("No user found with that email/password combination", code=404)
+        return error("No user found with that email/password combination", code=404)
     with Database.get_db() as db:
         customer = db['customer']
         results = db.query(
@@ -104,12 +104,12 @@ def login():
 @auth.route("/register/customer", methods=["POST"])
 def register_customer():
     if 'email' not in request.form:
-        return utils.error("Missing required form parameter 'email'", code=400)
+        return error("Missing required form parameter 'email'", code=400)
     if 'password' not in request.form:
-        return utils.error("Missing required form parameter 'password'", code=400)
+        return error("Missing required form parameter 'password'", code=400)
     if 'name' not in request.form:
-        return utils.error("Missing required form parameter 'name'", code=400)
-    email_hash = hashlib.sha256(request.form['email'].encode()).hexdigest()
+        return error("Missing required form parameter 'name'", code=400)
+    email_hash = sha256(request.form['email'].encode()).hexdigest()
     with Database.get_db() as db:
         user = db['user']
         results = db.query(
@@ -118,14 +118,14 @@ def register_customer():
             )
         )
     if len(results):
-        return utils.error("That email is already in use", code=409)
+        return error("That email is already in use", code=409)
     userID = get_random_bytes(16).hex()
     with Database.get_db() as db:
         db.insert(
             'user',
             id=userID,
             pw_hash=bcrypt(
-                b85encode(hashlib.sha256(request.form['password'].encode()).digest()), # shorten to 40 bcryptable bytes
+                b85encode(sha256(request.form['password'].encode()).digest()), # shorten to 40 bcryptable bytes
                 utils.BCRYPT_COST,
                 # Use a random salt. We don't need to pick our own
             ),
@@ -142,14 +142,14 @@ def register_customer():
 @auth.route("/register/business", methods=["POST"])
 def register_customer():
     if 'email' not in request.form:
-        return utils.error("Missing required form parameter 'email'", code=400)
+        return error("Missing required form parameter 'email'", code=400)
     if 'password' not in request.form:
-        return utils.error("Missing required form parameter 'password'", code=400)
+        return error("Missing required form parameter 'password'", code=400)
     if 'name' not in request.form:
-        return utils.error("Missing required form parameter 'name'", code=400)
+        return error("Missing required form parameter 'name'", code=400)
     if 'location' not in request.form:
-        return utils.error("Missing required form parameter 'location'", code=400)
-    email_hash = hashlib.sha256(request.form['email'].encode()).hexdigest()
+        return error("Missing required form parameter 'location'", code=400)
+    email_hash = sha256(request.form['email'].encode()).hexdigest()
     with Database.get_db() as db:
         user = db['user']
         results = db.query(
@@ -158,14 +158,14 @@ def register_customer():
             )
         )
     if len(results):
-        return utils.error("That email is already in use", code=409)
+        return error("That email is already in use", code=409)
     userID = get_random_bytes(16).hex()
     with Database.get_db() as db:
         db.insert(
             'user',
             id=userID,
             pw_hash=bcrypt(
-                b85encode(hashlib.sha256(request.form['password'].encode()).digest()), # shorten to 40 bcryptable bytes
+                b85encode(sha256(request.form['password'].encode()).digest()), # shorten to 40 bcryptable bytes
                 BCRYPT_COST,
                 # Use a random salt. We don't need to pick our own
             ),
