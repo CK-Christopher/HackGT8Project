@@ -25,15 +25,7 @@ def getblob(gs_path):
     components = gs_path.split('/')
     bucket_id = components[0]
     bucket_path = '/'.join(components[1:])
-    print("Accessing", bucket_id, bucket_path)
-    cli = storage.Client()
-    print("client", cli)
-    bucket = cli.bucket(bucket_id)
-    print("bucket", bucket)
-    blob = bucket.blob(bucket_path)
-    print("blob", blob)
-    return blob
-    # return storage.Client().bucket(bucket_id).blob(bucket_path)
+    return storage.Client().bucket(bucket_id).blob(bucket_path)
 
 def authenticated(func):
     """

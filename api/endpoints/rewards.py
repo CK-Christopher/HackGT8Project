@@ -161,6 +161,10 @@ def view_modify_delete_rewards(session, bus_id, r_id):
 @rewards.route('/business/<bus_id>/rewards/<r_id>/images', methods=["POST"])
 @authenticated
 def add_image(session, bus_id, r_id):
+    image_types = {
+        'image/jpeg': '.jpeg',
+        'image/png': '.png'
+    }
     if bus_id == 'me' and session['account_type'] == 'business':
         bus_id = session['user']
     if bus_id != session['user']:
@@ -175,6 +179,19 @@ def add_image(session, bus_id, r_id):
             context="Must provide a file with name 'image'",
             code=400
         )
+    if 'Content-Length' not in request.headers or int(request.headers['Content-Length']) > 1048**2:
+        return error(
+            "Image too large",
+            context="Image must not exceed 1 Mib",
+            code=400
+        )
+    image_file = request.files['image']
+    if image_file.content_type not in image_types:
+        return error(
+            "Unsupported content type",
+            context="Uploaded image must be png or jpeg",
+            code=400
+        )
     with Database.get_db() as db:
         rewards = db['rewards']
         results = db.query(
@@ -183,15 +200,14 @@ def add_image(session, bus_id, r_id):
         if not len(results):
             return error("Reward id '{}' not found".format(r_id), code=404)
     image_id = get_random_bytes(16).hex()
-    path = 'gs://{}/business/{}/reward_images/{}'.format(
+    path = 'gs://{}/business/{}/reward_images/{}{}'.format(
         current_app.config['IMAGE_BUCKET'],
         session['user'],
-        image_id
+        image_id,
+        image_types[image_file.content_type]
     )
     image = getblob(path)
-    print(image, image_path)
-    image.upload_from_file(request.files['image'])
-    print("Upload complete")
+    image.upload_from_file(image_file, content_type=image_file.content_type)
     image.make_public()
     image.reload()
     with Database.get_db() as db:
