@@ -4,9 +4,9 @@ from ..utils import error, authenticated
 import sqlalchemy as sqla
 import json
 
-user = Blueprint('user', __name__, url_prefix="/user")
+customer = Blueprint('customer', __name__, url_prefix="/customer")
 
-@user.route('/profile', methods=["GET", "POST"])
+@customer.route('/profile', methods=["GET", "POST"])
 @authenticated
 def profile(session):
     """
@@ -65,7 +65,7 @@ def profile(session):
         return make_response("OK", 200)
 
 
-@business.route('/user')
+@customer.route('/businesses')
 @authenticated
 def get_business(session):
     """
@@ -76,11 +76,15 @@ def get_business(session):
         results = db.query(
             shops_at.select.where(shops_at.c.cust_id == session['user'])
         )
+    for idx, row in results.iterrows():
+        results[idx] = db.query(
+            user.select.where(user.c.id == row['bus_id'])
+        )
 
         return make_response(
             [
                 {
-                    'businesses': row['bus_id'],
+                    'name': row['name'],
                     'points': row['points']
                 }
                 for idx, row in results.iterrows()
