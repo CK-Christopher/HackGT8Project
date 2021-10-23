@@ -1,12 +1,13 @@
 from flask import Blueprint, current_app, request, make_response
 from ..db import Database
-from ..utils import error, authenticated
+from ..utils import error, authenticated, check_csrf
 import sqlalchemy as sqla
 
 business = Blueprint('business', __name__, url_prefix="/business")
 
 @business.route('/profile', methods=["GET", "POST"])
 @authenticated
+@check_csrf('/business/profile', skip_methods=['GET'])
 def profile(session):
     """
     GET: Gets all profile attributes except password and email hashes
@@ -27,9 +28,11 @@ def profile(session):
                     business.table,
                     user.table
                 ).select_from(
-                    user.table.join(business.table)
+                    user.table.join(business.table, user.c.id == business.c.id)
                 ).where(user.c.id == session['user'])
-            ).iloc[0].to_dict() # If there's not exactly 1 entry here, something has gone *CATACLYSMICALLY* wrong
+            )
+        assert len(profile) == 1, "Something has gone cataclysmically wrong"
+        profile = profile.iloc[0].to_dict()
         return make_response(
             {
                 'user': profile['id'],

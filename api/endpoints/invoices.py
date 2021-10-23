@@ -1,6 +1,6 @@
 from flask import Blueprint, current_app, request, make_response
 from ..db import Database
-from ..utils import error, authenticated
+from ..utils import error, authenticated, check_csrf
 from Crypto.Random import get_random_bytes
 from datetime import datetime
 import sqlalchemy as sqla
@@ -9,6 +9,7 @@ invoices = Blueprint("invoices", __name__)
 
 @invoices.route('/business/<bus_id>/invoices', methods=['GET', 'POST'])
 @authenticated
+@check_csrf('/business/*/invoices', skip_methods=['GET'])
 def list_add_invoice(session, bus_id):
     if session['account_type'] != 'business':
         return error(
@@ -67,6 +68,7 @@ def list_add_invoice(session, bus_id):
 
 @invoices.route('/business/<bus_id>/invoices/<inv_id>', methods=['GET', 'PATCH', 'DELETE'])
 @authenticated
+@check_csrf('/business/*/invoices/*', skip_methods=['GET'])
 def view_accept_delete_invoices(session, bus_id, inv_id):
     if request.method == 'GET':
         # If customer: invoice id is the user_access_key
