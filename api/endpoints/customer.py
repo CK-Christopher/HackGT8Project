@@ -73,17 +73,25 @@ def get_business(session):
     """
     with Database.get_db() as db:
         shops_at = db['shops_at']
+        user = db['user']
         results = db.query(
-            shops_at.select.where(shops_at.c.cust_id == session['user'])
+            sqla.selct(
+                user.c.name,
+                shops_at.c.points
+            ).select_from(
+                shops_at.table.join(user.table, shops_at.c.bus_id == user.c.id)
+            ).where(
+                (shops_at.c.cust_id == session['user']) & (shops_at.c.points > 7)
+            )
         )
 
-        return make_response(
-            [
-                {
-                    'bus_id': row['bus_id'],
-                    'points': row['points']
-                }
-                for idx, row in results.iterrows()
-            ],
-            200
-        )
+    return make_response(
+        [
+            {
+                'name': row['name'],
+                'points': row['points']
+            }
+            for idx, row in results.iterrows()
+        ],
+        200
+    )
