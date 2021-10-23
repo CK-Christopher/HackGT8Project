@@ -186,6 +186,11 @@ def add_image(session, bus_id, r_id):
             code=400
         )
     image_file = request.files['image']
+    if image_file.content_type is None and '.' in image_file.filename:
+        # Fallback content_type inference
+        # Shouldn't be too unsafe, just might prevent images displaying if faked
+        ext = image_file.filename.split('.')[-1]
+        image_file.content_type = 'image/{}'.format(ext)
     if image_file.content_type not in image_types:
         return error(
             "Unsupported content type",
