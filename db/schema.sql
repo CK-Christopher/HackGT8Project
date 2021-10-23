@@ -12,7 +12,7 @@ create table if not exists user (
 
 create table if not exists business (
   id char(32) primary key,
-  foreign key (id) references user(id)
+  foreign key (id) references user(id),
   location text
 );
 
@@ -52,7 +52,8 @@ create table if not exists rewards_images (
   id integer unsigned primary key auto_increment,
   reward_id integer unsigned not null,
   bus_id char(32) not null,
-  foreign key (reward_id, bus_id) references rewards(id, bus_id),
+  foreign key (reward_id) references rewards(id),
+  foreign key (bus_id) references business(id),
   index (reward_id, bus_id),
   url text not null
 );

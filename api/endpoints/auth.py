@@ -1,6 +1,6 @@
-from flask import Blueprint, make_response, current_app
+from flask import Blueprint, make_response, current_app, request
 from ..db import Database
-from ..utils import error, TIMESTAMP_FORMAT
+from ..utils import error, TIMESTAMP_FORMAT, authenticated
 from hashlib import sha256
 from Crypto.Protocol.KDF import bcrypt_check
 from Crypto.Random import get_random_bytes
@@ -11,6 +11,7 @@ import jwt
 auth = Blueprint('auth', __name__, url_prefix='/auth')
 
 AUTH_COOKIE_LIFESPAN = 604800 # 1 week
+BCRYPT_COST = 10
 
 def generate_session_token(user_id, account_type):
     now
@@ -20,7 +21,8 @@ def generate_session_token(user_id, account_type):
                 'user': user_id,
                 'account_type': account_type,
                 'issued': now.strftime(TIMESTAMP_FORMAT),
-                'session_id': get_random_bytes(4).hex()
+                'session_id': get_random_bytes(4).hex(),
+                'exp': int(now.timestamp() + AUTH_COOKIE_LIFESPAN)
             },
             r.read(),
             algorithm="RS256"
@@ -30,7 +32,7 @@ def generate_session_token(user_id, account_type):
 def test():
     return generate_session_token('hello', 'blorp')
 
-@auth.route("/login")
+@auth.route("/login", methods=["POST"])
 def login():
     """
     Checks for email & password in formdata
@@ -98,3 +100,87 @@ def login():
         httponly=False,
         samesite='Lax'
     )
+
+@auth.route("/register/customer", methods=["POST"])
+def register_customer():
+    if 'email' not in request.form:
+        return utils.error("Missing required form parameter 'email'", code=400)
+    if 'password' not in request.form:
+        return utils.error("Missing required form parameter 'password'", code=400)
+    if 'name' not in request.form:
+        return utils.error("Missing required form parameter 'name'", code=400)
+    email_hash = hashlib.sha256(request.form['email'].encode()).hexdigest()
+    with Database.get_db() as db:
+        user = db['user']
+        results = db.query(
+            user.select.where(
+                user.c.email_hash == email_hash
+            )
+        )
+    if len(results):
+        return utils.error("That email is already in use", code=409)
+    userID = get_random_bytes(16).hex()
+    with Database.get_db() as db:
+        db.insert(
+            'user',
+            id=userID,
+            pw_hash=bcrypt(
+                b85encode(hashlib.sha256(request.form['password'].encode()).digest()), # shorten to 40 bcryptable bytes
+                utils.BCRYPT_COST,
+                # Use a random salt. We don't need to pick our own
+            ),
+            email=request.form['email'], # FIXME sanitize
+            email_hash=email_hash,
+            name=request.form['name'] # FIXME sanitize
+        )
+        db.insert(
+            'customer',
+            id=userID
+        )
+    return make_response(userID, 200)
+
+@auth.route("/register/business", methods=["POST"])
+def register_customer():
+    if 'email' not in request.form:
+        return utils.error("Missing required form parameter 'email'", code=400)
+    if 'password' not in request.form:
+        return utils.error("Missing required form parameter 'password'", code=400)
+    if 'name' not in request.form:
+        return utils.error("Missing required form parameter 'name'", code=400)
+    if 'location' not in request.form:
+        return utils.error("Missing required form parameter 'location'", code=400)
+    email_hash = hashlib.sha256(request.form['email'].encode()).hexdigest()
+    with Database.get_db() as db:
+        user = db['user']
+        results = db.query(
+            user.select.where(
+                user.c.email_hash == email_hash
+            )
+        )
+    if len(results):
+        return utils.error("That email is already in use", code=409)
+    userID = get_random_bytes(16).hex()
+    with Database.get_db() as db:
+        db.insert(
+            'user',
+            id=userID,
+            pw_hash=bcrypt(
+                b85encode(hashlib.sha256(request.form['password'].encode()).digest()), # shorten to 40 bcryptable bytes
+                BCRYPT_COST,
+                # Use a random salt. We don't need to pick our own
+            ),
+            email=request.form['email'], # FIXME sanitize
+            email_hash=email_hash,
+            name=request.form['name'] # FIXME sanitize
+        )
+        db.insert(
+            'business',
+            id=userID,
+            location=request.form['location'] # FIXME sanitize
+        )
+    return make_response(userID, 200)
+
+@auth.route("/me")
+@authenticated
+def me(session):
+    return make_response(session['user'], 200)
