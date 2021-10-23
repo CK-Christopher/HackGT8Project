@@ -2,7 +2,7 @@ from flask import Blueprint, make_response, current_app, request
 from ..db import Database
 from ..utils import error, TIMESTAMP_FORMAT, authenticated
 from hashlib import sha256
-from Crypto.Protocol.KDF import bcrypt_check
+from Crypto.Protocol.KDF import bcrypt, bcrypt_check
 from Crypto.Random import get_random_bytes
 from datetime import datetime
 from base64 import b85encode
@@ -14,7 +14,7 @@ AUTH_COOKIE_LIFESPAN = 604800 # 1 week
 BCRYPT_COST = 10
 
 def generate_session_token(user_id, account_type):
-    now
+    now = datetime.now()
     with open(current_app.config['RSA_KEY']) as r:
         return jwt.encode(
             {
@@ -62,10 +62,10 @@ def login():
         return error("No user found with that email/password combination", code=404)
     with Database.get_db() as db:
         customer = db['customer']
-        results = db.query(
+        customer_results = db.query(
             customer.select.where(customer.c.id == results['id'][0])
         )
-    token, now = generate_session_token(results['id'][0], 'customer' if len(results) else 'business')
+    token, now = generate_session_token(results['id'][0], 'customer' if len(customer_results) else 'business')
     response = make_response('OK', 200)
     response.set_cookie(
         'session',
@@ -100,6 +100,7 @@ def login():
         httponly=False,
         samesite='Lax'
     )
+    return response
 
 @auth.route("/register/customer", methods=["POST"])
 def register_customer():
@@ -184,3 +185,45 @@ def register_business():
 @authenticated
 def me(session):
     return make_response(session['user'], 200)
+
+@auth.route("/logout")
+# Not authenticated
+def logout():
+    response = make_response('OK', 200)
+    response.set_cookie(
+        'session',
+        '-',
+        max_age=0,
+        domain=current_app.config['DOMAIN'],
+        secure=current_app.config['SECURE_AUTH_COOKIES'],
+        httponly=True,
+        samesite='Strict'
+    )
+    response.set_cookie(
+        'user',
+        '-',
+        max_age=0,
+        domain=current_app.config['DOMAIN'],
+        secure=current_app.config['SECURE_AUTH_COOKIES'],
+        httponly=False,
+        samesite='Lax'
+    )
+    response.set_cookie(
+        'loggedin',
+        '-',
+        max_age=0,
+        domain=current_app.config['DOMAIN'],
+        secure=current_app.config['SECURE_AUTH_COOKIES'],
+        httponly=False,
+        samesite='Lax'
+    )
+    response.set_cookie(
+        'acct_type',
+        '-',
+        max_age=0,
+        domain=current_app.config['DOMAIN'],
+        secure=current_app.config['SECURE_AUTH_COOKIES'],
+        httponly=False,
+        samesite='Lax'
+    )
+    return response

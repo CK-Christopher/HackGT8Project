@@ -35,6 +35,7 @@ class Database(object):
             echo=('DB_ECHO' in current_app.config and current_app.config['DB_ECHO']),
         )
         db.load_tables(*current_app.config['DB_TABLES'])
+        return db
 
     def __init__(self, url, *, future=True, **kwargs):
         self.url = url
@@ -48,7 +49,6 @@ class Database(object):
             )
         )
         self.meta = sqla.MetaData(self.engine)
-        self._lock = Lock()
         self._tables = {}
 
     def __getitem__(self, table):

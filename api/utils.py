@@ -1,4 +1,4 @@
-from flask import make_response, request
+from flask import make_response, request, current_app
 import jwt
 from functools import wraps
 
