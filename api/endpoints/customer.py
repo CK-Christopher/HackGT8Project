@@ -50,7 +50,7 @@ def profile(session):
                 results = db.query(
                     user.select.where(user.c.email_hash == email_hash)
                 )
-                if len(results):
+                if len(results) > 0:
                     return error("That email is already in use", code=409)
             account_updates['email'] = data['email'] # FIXME sanitize
         if len(account_updates):
@@ -76,15 +76,11 @@ def get_business(session):
         results = db.query(
             shops_at.select.where(shops_at.c.cust_id == session['user'])
         )
-    for idx, row in results.iterrows():
-        results[idx] = db.query(
-            user.select.where(user.c.id == row['bus_id'])
-        )
 
         return make_response(
             [
                 {
-                    'name': row['name'],
+                    'bus_id': row['bus_id'],
                     'points': row['points']
                 }
                 for idx, row in results.iterrows()
