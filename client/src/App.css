@@ -46,3 +46,9 @@
   height: 100%;
   margin: auto;
 }
+.award-item {
+  cursor: pointer;
+}
+.award-item:hover {
+  background-color: azure;
+}
