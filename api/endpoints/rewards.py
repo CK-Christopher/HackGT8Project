@@ -1,12 +1,13 @@
 from flask import Blueprint, current_app, request, make_response
 from ..db import Database
-from ..utils import error, authenticated
+from ..utils import error, authenticated, check_csrf
 import sqlalchemy as sqla
 
 rewards = Blueprint("rewards", __name__)
 
 @rewards.route('/business/<bus_id>/rewards', methods=["GET", "POST"])
 @authenticated
+@check_csrf('/business/*/rewards', skip_methods=['GET'])
 def list_or_add_rewards(session, bus_id):
     if bus_id == 'me' and session['account_type'] == 'business':
         bus_id = session['user']
@@ -71,6 +72,7 @@ def list_or_add_rewards(session, bus_id):
 
 @rewards.route('/business/<bus_id>/rewards/<r_id>', methods=["GET", "PATCH", "DELETE"])
 @authenticated
+@check_csrf('/business/*/rewards/*', skip_methods=['GET'])
 def view_modify_delete_rewards(session, bus_id, r_id):
     if bus_id == 'me' and session['account_type'] == 'business':
         bus_id = session['user']

@@ -1,6 +1,8 @@
 from flask import make_response, request, current_app
+from .db import Database
 import jwt
 from functools import wraps
+from datetime import datetime
 
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 
@@ -60,3 +62,54 @@ def authenticated(func):
         return func(session, *args, **kwargs)
 
     return ensure_auth
+
+
+def check_csrf(endpoint, skip_methods=None):
+    """
+    Wrapper to enforce CSRF tokens.
+    Always use UNDER @authenticated decorator
+    """
+
+    def wrapper(func):
+
+        @wraps(func)
+        def ensure_csrf(session, *args, **kwargs):
+            if skip_methods is None or request.method not in skip_methods:
+                token = request.cookies.get('csrf', None)
+                if token is None:
+                    return error(
+                        'CSRF attack prevented',
+                        context="No CSRF token was present on the request",
+                        code=401
+                    )
+                with Database.get_db() as db:
+                    csrf = db['csrf']
+                    results = db.query(
+                        csrf.select.where(
+                            (csrf.c.id == session['user'])
+                            & (csrf.c.token == token)
+                            & (csrf.c.endpoint == endpoint)
+                            & (csrf.c.ip == request.remote_addr)
+                            & (csrf.c.expires >= datetime.now())
+                        )
+                    )
+                    if not len(results):
+                        return error(
+                            'CSRF attack prevented',
+                            context="Forged/Expired CSRF token presented",
+                            code=401
+                        )
+                    db.execute(
+                        csrf.delete.where(
+                            (csrf.c.expires < datetime.now())
+                            | (
+                                (csrf.c.id == session['user'])
+                                & (csrf.c.token == token)
+                            )
+                        )
+                    )
+            return func(session, *args, **kwargs)
+
+        return ensure_csrf
+
+    return wrapper

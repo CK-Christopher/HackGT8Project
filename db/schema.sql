@@ -67,3 +67,13 @@ create table if not exists user_faces (
   index (cust_id),
   url text not null
 );
+
+create table if not exists csrf (
+  id char(32) not null,
+  token char(16) not null,
+  foreign key (id) references user(id),
+  primary key (token, id),
+  endpoint varchar(255) not null,
+  ip varchar(40) not null, -- supports v4 & v6 addresses
+  expires datetime not null
+);

@@ -7,5 +7,6 @@ DB_TABLES=[
     'invoice',
     'rewards',
     'rewards_images',
-    'user_faces'
+    'user_faces',
+    'csrf'
 ]
