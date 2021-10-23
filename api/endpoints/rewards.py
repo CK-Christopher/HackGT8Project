@@ -49,6 +49,13 @@ def list_or_add_rewards(session, bus_id):
                 name=data['name'], # FIXME sanitize
                 description=data['description'] # FIXME sanitize
             )
+            rewards = db['rewards']
+            results = db.query(
+                rewards.select(rewards.c.id).where(
+                    (rewards.c.bus_id == session['user']) & (rewards.c.name == data['name']) & (rewards.c.cost == data['cost'])
+                )
+            )
+            return make_response(max(results['id']), 200)
 
 @rewards.route('/business/<bus_id>/rewards/<r_id>', methods=["GET", "POST", "DELETE"])
 @authenticated
@@ -83,7 +90,10 @@ def view_modify_delete_rewards(session, bus_id, r_id):
                     'cost': results['cost'][0],
                     'description': results['description'][0],
                     'gallery': [
-                        (img['id'], img['url'])
+                        {
+                            'id': img['id'],
+                            'url': img['url']
+                        }
                         for idx, img in gallery.iterrows()
                     ]
                 },

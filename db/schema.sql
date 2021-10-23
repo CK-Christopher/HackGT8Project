@@ -35,7 +35,9 @@ create table if not exists invoice (
   transaction_num bigint unsigned primary key,
   -- Should txnum be a text field? It supports more arbitrary data, but is worse for indexing
   bus_id char(32) not null,
+  user_access_key char(16) not null,
   foreign key (bus_id) references business(id),
+  transaction_date datetime not null,
   points integer unsigned not null
 );
 
