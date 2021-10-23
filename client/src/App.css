@@ -52,3 +52,9 @@
 .award-item:hover {
   background-color: azure;
 }
+
+.reward-form-container {
+  width: 500px;
+  height: 100%;
+  margin: auto;
+}

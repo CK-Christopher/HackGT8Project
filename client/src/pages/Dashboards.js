@@ -143,17 +143,17 @@ function BusinessDashboard() {
               </ListGroup.Item>
             </ListGroup>
             <Button variant="success" className="mt-2 float-right">
-              Add New Award
+              Add New Reward
             </Button>
           </Col>
         </Row>
       </Container>
-      <ViewAwardModal show={show} handleClose={handleClose} />
+      <ViewRewardModal show={show} handleClose={handleClose} />
     </>
   );
 }
 
-function ViewAwardModal(props) {
+function ViewRewardModal(props) {
   return (
     <Modal
       show={props.show}
@@ -162,7 +162,7 @@ function ViewAwardModal(props) {
       keyboard={false}
     >
       <Modal.Header closeButton>
-        <Modal.Title>Add New Award</Modal.Title>
+        <Modal.Title>Add New Reward</Modal.Title>
       </Modal.Header>
       <Form>
         <Modal.Body></Modal.Body>

@@ -3,24 +3,13 @@ import { Navbar, Nav } from "react-bootstrap";
 import { CustomerDashboard, BusinessDashboard } from "./Dashboards";
 import { FormControl, InputGroup, Button } from "react-bootstrap";
 import { useState } from "react";
+import Navigation from "./Navigation";
 
 function HomePage(props) {
   const [customerIsUser, setCustomerIsUser] = useState(false);
   return (
     <>
-      <Navbar bg="dark" expand="lg" className="navbar-dark">
-        <Container>
-          <Navbar.Brand href="/">Rewards Vault</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="ms-auto">
-              <Nav.Link href="/">Home</Nav.Link>
-              <Nav.Link href="/account">Account</Nav.Link>
-              <Nav.Link href="/signin">Sign In</Nav.Link>
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+      <Navigation></Navigation>
       <section className="bg-info">
         <Container className="py-4">
           <Row className="d-flex align-items-center">

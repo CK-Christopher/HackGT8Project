@@ -50,10 +50,13 @@ function SignUp() {
               <Form.Control type="text" placeholder="Enter name" />
             </Form.Group>
           )}
+          <p className="lead mt-2">
+            Already have an account? <a href="/signin">Sign In</a>
+          </p>
           <Button
             variant="primary"
             type="submit"
-            className="mt-4"
+            className="mt-2"
             disabled={formState.buttonDisabled}
           >
             Sign Up
@@ -68,7 +71,7 @@ function SignIn(props) {
   return (
     <Container>
       <div className="sign-form-container mt-5">
-        <h2>Sign up to Rewards Vault</h2>
+        <h2>Sign in to Rewards Vault</h2>
         <Form>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
@@ -79,7 +82,10 @@ function SignIn(props) {
             <Form.Label>Password</Form.Label>
             <Form.Control type="password" placeholder="Password" />
           </Form.Group>
-          <Button variant="primary" type="submit" className="mt-4">
+          <p className="lead">
+            Don't have an account? <a href="/signup">Sign Up</a>
+          </p>
+          <Button variant="primary" type="submit" className="mt-2">
             Sign In
           </Button>
         </Form>
