@@ -1,4 +1,4 @@
-import ast
+import ast, pickle
 
 from flask import Blueprint, current_app, request, make_response
 from ..db import Database
@@ -8,6 +8,7 @@ import sqlalchemy as sqla
 
 from deepface import DeepFace
 from deepface.commons import distance as dst
+from sklearn.cluster import KMeans
 import time
 import traceback
 
@@ -23,7 +24,7 @@ def profile(session):
     if session['account_type'] != 'business':
         return error(
             "Invalid account type",
-            context="This view requires a buisness account",
+            context="This view requires a business account",
             code=400
         )
     if request.method == 'GET':
@@ -155,7 +156,8 @@ def b64image_to_embedding(b64image):
 
 # curl -X PUT -d "base64image=data:image/jpeg;base64,$( base64 /Users/andrew/Downloads/testimage.jpeg)" "http://127.0.0.1:8888/business/recognize_face"
 @business.route("/recognize_face", methods=['PUT'])
-def recognize_face():
+@authenticated
+def recognize_face(session):
     base64image = request.form['base64image']
     with Database.get_db() as db:
         all_user_faces = db.query(sqla.select(db['user_faces'].c.cust_id, db['user_faces'].c.url).select_from(db['user_faces'].table))
@@ -186,7 +188,37 @@ def find_identity(b64image, all_user_faces):
         return None
     return df.iloc[0]
 
+@business.route('get_clusters', methods=['GET'])
+@authenticated
+def get_clusters(session):
+    business_id = session['user']
+
+    print(business_id)
+
+    with Database.get_db() as db:
+        shops_at = db['shops_at']
+        user = db['user']
+        results = db.query(
+            sqla.select(
+                user.c.age,
+                user.c.spending_score,
+                shops_at.c.points
+            ).select_from(
+                shops_at.table.join(user.table, shops_at.c.cust_id == user.c.id)
+            ).where(
+                shops_at.c.bus_id == session['user']
+            )
+        )
+
+    kmeans = pickle.load(open('model.pkl', 'rb'))
+    cluster_data = []
+    for i, row in results.iterrows():
+        cluster_data.append(kmeans.predict(row['age', 'spending_score']))
+    results['cluster_data'] = cluster_data
+    return str(results)
+
+
 @business.route("/test_fill", methods=['GET'])
 def test_fill():
     fill_tables()
-    return "success";
+    return "success"

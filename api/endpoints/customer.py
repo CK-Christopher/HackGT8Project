@@ -79,7 +79,7 @@ def get_business(session):
                 user.c.name,
                 shops_at.c.points
             ).select_from(
-                shops_at.table.join(user.table, shops_at.c.bus_id == user.c.id)
+                shops_at.table.join(user.table, shops_at.c.cust_id == user.c.id)
             ).where(
                 (shops_at.c.cust_id == session['user']) & (shops_at.c.points > 7)
             )
