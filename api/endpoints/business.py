@@ -3,7 +3,6 @@ from ..db import Database
 from ..utils import error, authenticated
 from ..fill_tables import fill_tables
 import sqlalchemy as sqla
-
 business = Blueprint('business', __name__, url_prefix="/business")
 
 @business.route('/profile', methods=["GET", "POST"])
@@ -16,7 +15,7 @@ def profile(session):
     if session['account_type'] != 'business':
         return error(
             "Invalid account type",
-            context="This view requires a buisness account",
+            context="This view requires a business account",
             code=400
         )
     if request.method == 'GET':
