@@ -132,13 +132,21 @@ def view_accept_delete_invoices(session, bus_id, inv_id):
                         (shops_at.c.cust_id == session['user']) & (shops_at.c.bus_id == bus_id)
                     )
                 )
-                db.execute(
-                    shops_at.update.where(
-                        (shops_at.c.cust_id == session['user']) & (shops_at.c.bus_id == bus_id)
-                    ).values(
-                        points=c_data['points'][0] + results['points'][0]
+                if not len(c_data):
+                    db.insert(
+                        'shops_at',
+                        bus_id=bus_id,
+                        cust_id=session['user'],
+                        points=results['points'][0]
                     )
-                )
+                else:
+                    db.execute(
+                        shops_at.update.where(
+                            (shops_at.c.cust_id == session['user']) & (shops_at.c.bus_id == bus_id)
+                        ).values(
+                            points=c_data['points'][0] + results['points'][0]
+                        )
+                    )
                 db.execute(
                     invoice.delete.where((invoice.c.bus_id == bus_id) & (invoice.c.user_access_key == inv_id))
                 )

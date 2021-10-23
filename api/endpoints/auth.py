@@ -11,7 +11,7 @@ import jwt
 auth = Blueprint('auth', __name__, url_prefix='/auth')
 
 AUTH_COOKIE_LIFESPAN = 604800 # 1 week
-BCRYPT_COST = 10
+BCRYPT_COST = 12
 
 def generate_session_token(user_id, account_type):
     now = datetime.now()
@@ -52,7 +52,6 @@ def login():
     if not len(results):
         return error("No user found with that email/password combination", code=404)
     assert len(results) == 1, "Email hash collision!"
-    print(request.form)
     try:
         bcrypt_check(
             b85encode(sha256(request.form['password'].encode()).digest()), # shorten to 40 bcryptable bytes
@@ -127,7 +126,7 @@ def register_customer():
             id=userID,
             pw_hash=bcrypt(
                 b85encode(sha256(request.form['password'].encode()).digest()), # shorten to 40 bcryptable bytes
-                utils.BCRYPT_COST,
+                BCRYPT_COST,
                 # Use a random salt. We don't need to pick our own
             ),
             email=request.form['email'], # FIXME sanitize
@@ -181,13 +180,44 @@ def register_business():
         )
     return make_response(userID, 200)
 
+@auth.route("/password", methods=["PATCH"])
+@authenticated
+def update_password(session):
+    if 'password' not in request.form:
+        return error("Missing required form parameter 'password'", code=400)
+    with Database.get_db() as db:
+        user = db['user']
+        db.execute(
+            user.update.where(user.c.id == session['user']).values(
+                pw_hash=bcrypt(
+                    b85encode(sha256(request.form['password'].encode()).digest()), # shorten to 40 bcryptable bytes
+                    BCRYPT_COST,
+                    # Use a random salt. We don't need to pick our own
+                )
+            )
+        )
+    return make_response('OK', 200)
+
+
 @auth.route("/me")
 @authenticated
 def me(session):
     return make_response('"{}"'.format(session['user']), 200)
 
-@auth.route("/logout")
-# Not authenticated
+@auth.route('/delete-account', methods=['DELETE'])
+@authenticated
+def delete_account(session):
+    if session['account_type'] == 'customer':
+        pass
+    else:
+        pass
+    return make_response(
+        "Not Implemented",
+        context="Accounts can currently not be deleted",
+        code=501
+    )
+
+@auth.route("/logout", methods=['POST'])
 def logout():
     response = make_response('OK', 200)
     response.set_cookie(
