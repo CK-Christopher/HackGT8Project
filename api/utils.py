@@ -12,7 +12,7 @@ def error(message, *, data=None, context=None, code=400):
         err['data'] = data
 
     if context is not None:
-        err['context'] = data
+        err['context'] = context
 
     return make_response(err, code)
 
@@ -42,8 +42,10 @@ def authenticated(func):
             )
         with open(current_app.config["RSA_KEY"]+'.pub') as r:
             try:
-                session = jwt.decode(token, r.read(), algorithm="RS256")
+                session = jwt.decode(token, r.read(), algorithms=["RS256"])
             except: # FIXME figure out jwt's exception classes
+                import traceback
+                traceback.print_exc()
                 return error(
                     "Not logged in, or could not validate credentials",
                     context="Must be logged in to access this endpoint",

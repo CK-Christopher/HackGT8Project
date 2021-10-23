@@ -37,7 +37,7 @@ def profile(session):
                 ).select_from(
                     user.table.join(business.table)
                 ).where(user.c.id == session['user'])
-            )[0].to_json() # If there's not exactly 1 entry here, something has gone *CATACLYSMICALLY* wrong
+            ).iloc[0].to_dict() # If there's not exactly 1 entry here, something has gone *CATACLYSMICALLY* wrong
         return make_response(
             {
                 'user': profile['id'],
@@ -89,7 +89,7 @@ def profile(session):
         return make_response("OK", 200)
 
 
-@business.route('/users')
+@business.route('/customers')
 @authenticated
 def get_users(session):
     """
@@ -101,13 +101,15 @@ def get_users(session):
             shops_at.select.where(shops_at.c.bus_id == session['user'])
         )
         return make_response(
-            [
-                {
-                    'user': row['cust_id'], # anonymize?
-                    'points': row['points']
-                }
-                for idx, row in results.iterrows()
-            ],
+            {
+                'customers': [
+                    {
+                        'user': row['cust_id'], # anonymize?
+                        'points': row['points']
+                    }
+                    for idx, row in results.iterrows()
+                ],
+            },
             200
         )
 

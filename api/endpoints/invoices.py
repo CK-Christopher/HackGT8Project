@@ -7,7 +7,7 @@ import sqlalchemy as sqla
 
 invoices = Blueprint("invoices", __name__)
 
-@invoices.route('/business/<bus_id>/invoices', methods=['GET', 'INSERT'])
+@invoices.route('/business/<bus_id>/invoices', methods=['GET', 'POST'])
 @authenticated
 def list_add_invoice(session, bus_id):
     if session['account_type'] != 'business':
@@ -23,20 +23,22 @@ def list_add_invoice(session, bus_id):
             code=403
         )
     if request.method == 'GET':
-        with Databases.get_db() as db:
+        with Database.get_db() as db:
             invoice = db['invoice']
             results = db.query(
                 invoice.select.where(invoice.c.bus_id == session['user'])
             )
             return make_response(
-                [
-                    {
-                        'transaction_num': inv['transaction_num'],
-                        'transaction_date': inv['transaction_date'],
-                        'points': inv['points']
-                    }
-                    for idx, inv in results.iterrows()
-                ],
+                {
+                    'invoices': [
+                        {
+                            'transaction_num': inv['transaction_num'],
+                            'transaction_date': inv['transaction_date'],
+                            'points': inv['points']
+                        }
+                        for idx, inv in results.iterrows()
+                    ],
+                },
                 200
             )
     else:
@@ -63,7 +65,7 @@ def list_add_invoice(session, bus_id):
             return make_response('OK', 200)
 
 
-@invoices.route('/businesses/<bus_id>/invoices/<inv_id>', methods=['GET', 'PATCH', 'DELETE'])
+@invoices.route('/business/<bus_id>/invoices/<inv_id>', methods=['GET', 'PATCH', 'DELETE'])
 @authenticated
 def view_accept_delete_invoices(session, bus_id, inv_id):
     if request.method == 'GET':
@@ -95,10 +97,10 @@ def view_accept_delete_invoices(session, bus_id, inv_id):
             )
         return make_response(
             {
-                'transaction_num': results['transaction_num'][0],
+                'transaction_num': int(results['transaction_num'][0]),
                 'transaction_date': results['transaction_date'][0],
                 'user_access_key': inv_id,
-                'points': results['points'][0],
+                'points': int(results['points'][0]),
             },
             200
         )
@@ -130,13 +132,21 @@ def view_accept_delete_invoices(session, bus_id, inv_id):
                         (shops_at.c.cust_id == session['user']) & (shops_at.c.bus_id == bus_id)
                     )
                 )
-                db.execute(
-                    shops_at.update.where(
-                        (shops_at.c.cust_id == session['user']) & (shops_at.c.bus_id == bus_id)
-                    ).values(
-                        points=c_data['points'][0] + results['points'][0]
+                if not len(c_data):
+                    db.insert(
+                        'shops_at',
+                        bus_id=bus_id,
+                        cust_id=session['user'],
+                        points=results['points'][0]
                     )
-                )
+                else:
+                    db.execute(
+                        shops_at.update.where(
+                            (shops_at.c.cust_id == session['user']) & (shops_at.c.bus_id == bus_id)
+                        ).values(
+                            points=c_data['points'][0] + results['points'][0]
+                        )
+                    )
                 db.execute(
                     invoice.delete.where((invoice.c.bus_id == bus_id) & (invoice.c.user_access_key == inv_id))
                 )
@@ -159,7 +169,7 @@ def view_accept_delete_invoices(session, bus_id, inv_id):
         # must be transaction number
         # delete invoice
         with Database.get_db() as db:
-            invoice = db['database']
+            invoice = db['invoice']
             db.execute(
                 invoice.delete.where(
                     (invoice.c.bus_id == session['user']) & (invoice.c.transaction_num == inv_id)

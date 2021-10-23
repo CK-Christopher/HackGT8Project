@@ -5,9 +5,11 @@ import sqlalchemy as sqla
 
 rewards = Blueprint("rewards", __name__)
 
-@rewards.route('/business/<bus_id>/rewards', methods=["GET", "INSERT"])
+@rewards.route('/business/<bus_id>/rewards', methods=["GET", "POST"])
 @authenticated
 def list_or_add_rewards(session, bus_id):
+    if bus_id == 'me' and session['account_type'] == 'business':
+        bus_id = session['user']
     if request.method == 'GET':
         # don't bother checking session type
         # customers and businesses can both view this endpoint
@@ -17,9 +19,14 @@ def list_or_add_rewards(session, bus_id):
                 rewards.select.where(
                     rewards.c.bus_id == bus_id
                 )
-            )
+            ).rename({'bus_id': 'business'}, axis='columns')
         return make_response(
-            results.to_json(),
+            {
+                'rewards': [
+                    row.to_dict()
+                    for idx, row in results.iterrows()
+                ]
+            },
             200
         )
     else:
@@ -51,15 +58,30 @@ def list_or_add_rewards(session, bus_id):
             )
             rewards = db['rewards']
             results = db.query(
-                rewards.select(rewards.c.id).where(
+                sqla.select(rewards.c.id).where(
                     (rewards.c.bus_id == session['user']) & (rewards.c.name == data['name']) & (rewards.c.cost == data['cost'])
                 )
             )
-            return make_response(max(results['id']), 200)
+            return make_response(
+                {
+                    'id': max(results['id'])
+                },
+                200
+            )
 
-@rewards.route('/business/<bus_id>/rewards/<r_id>', methods=["GET", "POST", "DELETE"])
+@rewards.route('/business/<bus_id>/rewards/<r_id>', methods=["GET", "PATCH", "DELETE"])
 @authenticated
 def view_modify_delete_rewards(session, bus_id, r_id):
+    if bus_id == 'me' and session['account_type'] == 'business':
+        bus_id = session['user']
+    try:
+        r_id = int(r_id)
+    except ValueError:
+        return error(
+            "Invalid Reward ID",
+            context='Reward ID must be an integer, not "{}"'.format(type(r_id)),
+            code=400
+        )
     with Database.get_db() as db:
         rewards = db['rewards']
         images = db['rewards_images']
@@ -87,7 +109,7 @@ def view_modify_delete_rewards(session, bus_id, r_id):
                     'id': r_id,
                     'business': bus_id,
                     'name': results['name'][0],
-                    'cost': results['cost'][0],
+                    'cost': int(results['cost'][0]),
                     'description': results['description'][0],
                     'gallery': [
                         {
@@ -99,7 +121,7 @@ def view_modify_delete_rewards(session, bus_id, r_id):
                 },
                 200
             )
-        elif request.method == 'POST':
+        elif request.method == 'PATCH':
             # check bus_id == session[user] to enforce ownership
             if bus_id != session['user']:
                 return error(
