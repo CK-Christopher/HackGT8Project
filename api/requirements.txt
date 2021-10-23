@@ -1,0 +1,9 @@
+sqlalchemy==1.4.1
+pandas
+flask==1.1.2
+pymysql
+pycryptodome
+pyjwt
+cryptography
+deepface
+google-cloud-storage
