@@ -1,10 +1,12 @@
-from flask import Blueprint, current_app, request, make_response
+from flask import Blueprint, current_app, request, make_response, send_file
 from ..db import Database
 from ..utils import error, authenticated
 from .faces import recognize_face
 from Crypto.Random import get_random_bytes
 from datetime import datetime
 import sqlalchemy as sqla
+import qrcode
+from io import BytesIO
 
 invoices = Blueprint("invoices", __name__)
 
@@ -92,7 +94,11 @@ def list_add_invoice(session, bus_id):
                 user_access_key=key,
                 points=data['points'], # FIXME sanitize
             )
-            return make_response('OK', 200)
+            img = qrcode.make("/business/"+bus_id+"/invoices/"+key) # FIXME: Need frontend point
+            bytes_io = BytesIO()
+            img.save(bytes_io, 'PNG')
+            bytes_io.seek(0)
+            return send_file(bytes_io, mimetype="image/png", attachment_filename='qr.png')
 
 
 @invoices.route('/business/<bus_id>/invoices/<inv_id>', methods=['GET', 'PATCH', 'DELETE'])

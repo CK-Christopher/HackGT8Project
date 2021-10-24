@@ -2,6 +2,7 @@ from flask import Flask
 import importlib
 import os
 from .conf import defaults
+from .endpoints.customer import customer
 from .endpoints.internal import internal
 from .endpoints.auth import auth
 from .endpoints.business import business
@@ -23,6 +24,7 @@ app.register_blueprint(auth)
 app.register_blueprint(business)
 app.register_blueprint(invoices)
 app.register_blueprint(rewards)
+app.register_blueprint(customer)
 app.register_blueprint(faces)
 
 app.run(host="0.0.0.0", port=app.config['APP_PORT'], ssl_context=app.config['SSL_CONTEXT'])
