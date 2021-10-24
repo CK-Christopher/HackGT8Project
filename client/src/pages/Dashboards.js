@@ -1,9 +1,11 @@
-import { ListGroup } from "react-bootstrap";
+import { ListGroup, Spinner } from "react-bootstrap";
 import { Container, Row, Col } from "react-bootstrap";
 import { Badge, Button } from "react-bootstrap";
 import { Modal } from "react-bootstrap";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
+import apiurl from "../apiurl";
+import { UserContext } from "../App";
 
 function CustomerDashboard(props) {
   return (
@@ -52,10 +54,51 @@ function CustomerDashboard(props) {
 }
 
 function BusinessDashboard() {
-  const [showReward, setShowReward] = useState(false);
+  const [showReward, setShowReward] = useState({ show: false, reward: null });
   const [showInvoice, setShowInvoice] = useState(false);
-  const handleClose = () => setShowReward(false);
-  const handleShow = () => setShowReward(true);
+  const [customers, setCustomers] = useState(null);
+  const [rewards, setRewards] = useState(null);
+  const [invoices, setInvoices] = useState(null);
+  const [user, setUser] = useContext(UserContext);
+
+  const handleClose = (e) => {
+    const index = e.target.key;
+    setShowReward({ show: false, reward: null });
+  };
+  const handleShow = (index) => {
+    console.log(index);
+    setShowReward({ show: true, reward: rewards.rewards[index] });
+  };
+
+  useEffect(async () => {
+    const res = await fetch(apiurl + "/business/customers", {
+      credentials: "include",
+      method: "GET",
+    });
+    const json = await res.json();
+    setCustomers(json);
+  }, []);
+
+  useEffect(async () => {
+    const res = await fetch(apiurl + "/business/me/rewards", {
+      credentials: "include",
+      method: "GET",
+    });
+    const json = await res.json();
+    console.log(json);
+    setRewards(json);
+  }, []);
+
+  useEffect(async () => {
+    const res = await fetch(apiurl + "/business/me/invoices", {
+      credentials: "include",
+      method: "GET",
+    });
+    const json = await res.json();
+    console.log(json);
+    setInvoices(json);
+  }, []);
+
   return (
     <>
       <Container className="pt-4">
@@ -64,84 +107,53 @@ function BusinessDashboard() {
           <Col md className="col-lg-6">
             <ListGroup>
               <h4>Customers</h4>
-              <ListGroup.Item
-                as="li"
-                className="d-flex justify-content-between align-items-start"
-              >
-                <div className="ms-2 me-auto">
-                  <div className="fw-bold">Mary Joe</div>
-                  ID: 223892
-                </div>
-                <Badge variant="primary" pill>
-                  475
-                </Badge>
-              </ListGroup.Item>
-              <ListGroup.Item
-                as="li"
-                className="d-flex justify-content-between align-items-start"
-              >
-                <div className="ms-2 me-auto">
-                  <div className="fw-bold">Hope Wild</div>
-                  ID: 223892
-                </div>
-                <Badge variant="primary" pill>
-                  28
-                </Badge>
-              </ListGroup.Item>
-              <ListGroup.Item
-                as="li"
-                className="d-flex justify-content-between align-items-start"
-              >
-                <div className="ms-2 me-auto award-item">
-                  <div className="fw-bold">Customer 3</div>
-                  ID: 223892
-                </div>
-                <Badge variant="primary" pill>
-                  30
-                </Badge>
-              </ListGroup.Item>
+              {!customers ? (
+                <Spinner animation="border" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </Spinner>
+              ) : (
+                customers.customers.map((customer) => {
+                  return (
+                    <ListGroup.Item
+                      as="li"
+                      className="d-flex justify-content-between align-items-start"
+                    >
+                      <div className="ms-2 me-auto">
+                        <div className="fw-bold">{customer.user}</div>
+                      </div>
+                      <Badge variant="primary" pill>
+                        {customer.points}
+                      </Badge>
+                    </ListGroup.Item>
+                  );
+                })
+              )}
             </ListGroup>
             <Button className="mt-2 float-right">Clear All</Button>
           </Col>
           <Col md className="col-lg-6">
             <ListGroup>
               <h4>Rewards</h4>
-              <ListGroup.Item
-                as="li"
-                className="d-flex justify-content-between align-items-start award-item"
-                onClick={handleShow}
-              >
-                <div className="ms-2 me-auto">
-                  <div className="fw-bold">Andrew's Awesome ML Co.</div>
-                </div>
-                <Badge bg="success" pill>
-                  475
-                </Badge>
-              </ListGroup.Item>
-              <ListGroup.Item
-                as="li"
-                className="d-flex justify-content-between align-items-start award-item"
-                onClick={handleShow}
-              >
-                <div className="ms-2 me-auto">
-                  <div className="fw-bold">Mum and Dad's Shop</div>
-                </div>
-                <Badge bg="success" pill>
-                  28
-                </Badge>
-              </ListGroup.Item>
-              <ListGroup.Item
-                as="li"
-                className="d-flex justify-content-between align-items-start award-item"
-                onClick={handleShow}
-              >
-                <div className="ms-2 me-auto">
-                  <div className="fw-bold">Small Business 3</div>
-                </div>
-                <Badge bg="success" pill>
-                  30
-                </Badge>
-              </ListGroup.Item>
+              {!rewards ? (
+                <Spinner animation="border" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </Spinner>
+              ) : (
+                rewards.rewards.map((reward, index) => (
+                  <ListGroup.Item
+                    as="li"
+                    className="d-flex justify-content-between align-items-start award-item"
+                    onClick={handleShow.bind(this, index)}
+                  >
+                    <div className="ms-2 me-auto">
+                      <div className="fw-bold">{reward.name}</div>
+                    </div>
+                    <Badge bg="success" pill>
+                      {reward.cost}
+                    </Badge>
+                  </ListGroup.Item>
+                ))
+              )}
             </ListGroup>
             <a className="btn btn-success my-2 float-right" href="/reward/add">
               Add New Reward
@@ -150,48 +162,28 @@ function BusinessDashboard() {
           <Col md>
             <ListGroup>
               <h4>Invoices</h4>
-              <a className="div" href="/">
-                <ListGroup.Item
-                  as="li"
-                  className="d-flex justify-content-between align-items-start invoice-item"
-                >
-                  <div className="ms-2 me-auto">
-                    <div className="fw-bold">Transaction Number: 2134</div>
-                    Recipient: Andrew Peng
-                  </div>
-                  <Badge bg="dark" pill>
-                    475
-                  </Badge>
-                </ListGroup.Item>
-              </a>
-              <a className="div" href="/">
-                <ListGroup.Item
-                  as="li"
-                  className="d-flex justify-content-between align-items-start invoice-item"
-                >
-                  <div className="ms-2 me-auto">
-                    <div className="fw-bold">Transaction Number: 2134</div>
-                    Recipient: Andrew Peng
-                  </div>
-                  <Badge bg="dark" pill>
-                    475
-                  </Badge>
-                </ListGroup.Item>
-              </a>
-              <a className="div" href="/">
-                <ListGroup.Item
-                  as="li"
-                  className="d-flex justify-content-between align-items-start invoice-item"
-                >
-                  <div className="ms-2 me-auto">
-                    <div className="fw-bold">Transaction Number: 2134</div>
-                    Recipient: Andrew Peng
-                  </div>
-                  <Badge bg="dark" pill>
-                    475
-                  </Badge>
-                </ListGroup.Item>
-              </a>
+              {!invoices ? (
+                <Spinner animation="border" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </Spinner>
+              ) : (
+                invoices.invoices.map((invoice) => (
+                  <a className="div" href="/">
+                    <ListGroup.Item
+                      as="li"
+                      className="d-flex justify-content-between align-items-start invoice-item"
+                    >
+                      <div className="ms-2 me-auto">
+                        <div className="fw-bold">{invoice.transaction_num}</div>
+                        {invoice.transaction_date}
+                      </div>
+                      <Badge bg="dark" pill>
+                        {invoice.points}
+                      </Badge>
+                    </ListGroup.Item>
+                  </a>
+                ))
+              )}
             </ListGroup>
             <a
               variant="dark"
@@ -203,13 +195,20 @@ function BusinessDashboard() {
           </Col>
         </Row>
       </Container>
-      <ViewRewardModal show={showReward} handleClose={handleClose} />
+      <ViewRewardModal
+        show={showReward.show}
+        reward={showReward.reward}
+        handleClose={handleClose}
+      />
     </>
   );
 }
 
 function ViewRewardModal(props) {
-  return (
+  const reward = props.reward;
+  return !reward ? (
+    <></>
+  ) : (
     <Modal
       show={props.show}
       onHide={props.handleClose}
@@ -217,23 +216,15 @@ function ViewRewardModal(props) {
       keyboard={false}
     >
       <Modal.Header closeButton>
-        <Modal.Title>Reward Title</Modal.Title>
+        <Modal.Title>{reward.name}</Modal.Title>
       </Modal.Header>
       <Form>
         <Modal.Body>
           <p className="fw-bold">Name</p>
-          <p>
-            Description: Lorem ipsum dolor sit amet consectetur adipisicing
-            elit. Architecto ullam esse enim atque modi. Consequuntur tempora
-            praesentium pariatur! Recusandae reiciendis non nisi commodi
-            possimus in! Corrupti laboriosam rem magnam iste at consequuntur
-            fuga facilis necessitatibus perferendis nam fugit temporibus nobis
-            sed, reprehenderit excepturi quia aperiam sapiente? Delectus culpa
-            quis voluptates?
-          </p>
+          <p>{reward.description}</p>
           <h3>
             <Badge bg="success" size="lg" pill>
-              30
+              {reward.cost}
             </Badge>
           </h3>
         </Modal.Body>
@@ -243,7 +234,7 @@ function ViewRewardModal(props) {
           </Button>
           <a
             className="btn btn-primary"
-            href="/reward/update/69"
+            href={"/reward/update/" + reward.id}
             variant="primary"
           >
             Update

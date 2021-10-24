@@ -5,20 +5,42 @@ import { Form } from "react-bootstrap";
 import { Button } from "react-bootstrap";
 import { Modal } from "react-bootstrap";
 import { useState } from "react";
+import apiurl from "../apiurl";
 
 function RewardsEditor(props) {
   const { rewardid } = useParams();
   const { mode } = props;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [validated, setValidated] = useState(false);
+
   const handleShow = () => setShowDeleteModal(true);
   const handleClose = () => setShowDeleteModal(false);
+
+  const addToRewardDB = async (form) => {
+    const data = new URLSearchParams(new FormData(form));
+    const res = await fetch(apiurl + "/business/me/rewards", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      method: "POST",
+      body: JSON.stringify({
+        cost: form.cost.value,
+        name: form.name.value,
+        description: form.description.value,
+      }),
+    });
+    window.location = "/";
+  };
 
   const handleSubmit = (event) => {
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
+    } else {
+      event.preventDefault();
+      addToRewardDB(form);
     }
 
     setValidated(true);
@@ -38,6 +60,7 @@ function RewardsEditor(props) {
               <Form.Control
                 type="text"
                 placeholder="Enter reward name"
+                name="name"
                 required
               />
               <Form.Text className="text-muted">
@@ -51,6 +74,7 @@ function RewardsEditor(props) {
               <Form.Label>Description (Optional)</Form.Label>
               <Form.Control
                 as="textarea"
+                name="description"
                 placeholder="Give a description of reward"
               />
               <Form.Text className="text-muted">
@@ -64,6 +88,7 @@ function RewardsEditor(props) {
                 type="number"
                 placeholder="Provide a cost of reward points"
                 min="1"
+                name="cost"
                 required
               />
               <Form.Control.Feedback type="invalid">

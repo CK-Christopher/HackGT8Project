@@ -5,6 +5,7 @@ import { Form } from "react-bootstrap";
 import { Button } from "react-bootstrap";
 import { Modal } from "react-bootstrap";
 import { useState } from "react";
+import apiurl from "../apiurl";
 
 function InvoiceEditor(props) {
   const { invoiceid } = useParams();
@@ -14,11 +15,30 @@ function InvoiceEditor(props) {
   const handleShow = () => setShowDeleteModal(true);
   const handleClose = () => setShowDeleteModal(false);
 
+  const addToInvoiceDB = async (form) => {
+    const data = new URLSearchParams(new FormData(form));
+    const res = await fetch(apiurl + "/business/me/invoices", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      method: "POST",
+      body: JSON.stringify({
+        transaction_num: form.transaction_num.value,
+        points: form.points.value,
+      }),
+    });
+    window.location = "/";
+  };
+
   const handleSubmit = (event) => {
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
+    } else {
+      event.preventDefault();
+      addToInvoiceDB(form);
     }
 
     setValidated(true);
@@ -34,23 +54,16 @@ function InvoiceEditor(props) {
           </h3>
           <Form validated={validated} onSubmit={handleSubmit} noValidate>
             <Form.Group className="mb-3" controlId="formBasicEmail" required>
-              <Form.Label>Transaction ID</Form.Label>
+              <Form.Label>Transaction Number</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Enter invoice transaction ID"
                 required
+                name="transaction_num"
               />
               <Form.Control.Feedback type="invalid">
-                Please provide a reward name.
+                Please provide a transaction number.
               </Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Recipient</Form.Label>
-              <Form.Select aria-label="Account Type Select" required>
-                <option value="">Select Recipient</option>
-                <option value="1">Jody Starks</option>
-                <option value="2">Bob Bill</option>
-              </Form.Select>
             </Form.Group>
 
             <Form.Group className="mb-3">
@@ -59,6 +72,7 @@ function InvoiceEditor(props) {
                 type="number"
                 placeholder="Provide a cost of reward points"
                 min="1"
+                name="points"
                 required
               />
               <Form.Control.Feedback type="invalid">

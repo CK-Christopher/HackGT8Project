@@ -8,7 +8,7 @@ import { ViewRewardModal } from "./Dashboards";
 import { Modal, Button, Form } from "react-bootstrap";
 
 function CustomerPage(props) {
-  const user = useContext(UserContext);
+  const [user, setUser] = useContext(UserContext);
   const [show, setShow] = useState(false);
   const handleShow = () => {
     setShow(true);

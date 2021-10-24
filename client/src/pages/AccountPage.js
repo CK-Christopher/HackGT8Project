@@ -6,7 +6,7 @@ import { UserContext } from "../App";
 import { useContext, useState } from "react";
 import { Redirect } from "react-router-dom";
 function AccountPage(props) {
-  const user = useContext(UserContext);
+  const [user, setUser] = useContext(UserContext);
   const [changesMade, setChangesMade] = useState(false);
   const [validated, setValidated] = useState(false);
 

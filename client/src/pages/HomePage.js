@@ -2,12 +2,26 @@ import { Container, Row, Col } from "react-bootstrap";
 import { Navbar, Nav } from "react-bootstrap";
 import { CustomerDashboard, BusinessDashboard } from "./Dashboards";
 import { FormControl, InputGroup, Button } from "react-bootstrap";
-import { useContext, useState } from "react";
+import { Profiler, useContext, useEffect, useState } from "react";
+import { Spinner } from "react-bootstrap";
 import Navigation from "./Navigation";
 import { UserContext } from "../App";
+import apiurl from "../apiurl";
 
 function HomePage(props) {
-  const user = useContext(UserContext);
+  const [user, setUser] = useContext(UserContext);
+  const [userProfile, setUserProfile] = useState(null);
+  useEffect(async () => {
+    if (user && user.account_type) {
+      const res = await fetch(apiurl + "/" + user.account_type + "/profile", {
+        credentials: "include",
+        method: "GET",
+      });
+      const json = await res.json();
+      console.log(json);
+      setUserProfile(json);
+    }
+  }, []);
   if (!user) {
     return (
       <>
@@ -47,14 +61,19 @@ function HomePage(props) {
       </>
     );
   }
-  return (
+
+  return !userProfile ? (
+    <Spinner animation="border" role="status">
+      <span className="visually-hidden">Loading...</span>
+    </Spinner>
+  ) : (
     <>
       <Navigation></Navigation>
       <section className="bg-info text-light">
         <Container className="py-4">
           <Row className="d-flex align-items-center">
             <Col md>
-              <h2>Hello User!</h2>
+              <h2>Hello {userProfile.name}!</h2>
               <p className="lead">Do whatever stuff you need to do</p>
             </Col>
             <Col md>

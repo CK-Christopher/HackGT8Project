@@ -9,20 +9,25 @@ import BusinessPage from "./pages/BusinessPage";
 import CustomerPage from "./pages/UserPage";
 import InvoiceEditor from "./pages/InvoiceEditor";
 import InvoiceClaimer from "./pages/InvoiceClaimer";
+import { getCookie } from "./Cookies";
 
 const UserContext = createContext();
-
 function App() {
-  /*const [user, setUser] = useState({
-    name: "Test1",
-    id: "42069",
-    email: "test@yahoo.com",
-    account_type: "business",
-  });*/
-  const user = null;
+  let returningUser = null;
+  if (document.cookie) {
+    returningUser = {
+      id: getCookie("user"),
+      account_type: getCookie("acct_type"),
+    };
+  }
+  const [user, setUser] = useState(returningUser);
+
+  const setNewUser = (newUser) => {
+    setUser(newUser);
+  };
 
   return (
-    <UserContext.Provider value={user}>
+    <UserContext.Provider value={[user, setNewUser]}>
       <Router>
         <Switch>
           <Route exact path="/">
