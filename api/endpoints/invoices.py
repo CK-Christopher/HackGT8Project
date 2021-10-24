@@ -1,6 +1,7 @@
 from flask import Blueprint, current_app, request, make_response
 from ..db import Database
 from ..utils import error, authenticated
+from .faces import recognize_face
 from Crypto.Random import get_random_bytes
 from datetime import datetime
 import sqlalchemy as sqla
@@ -52,6 +53,35 @@ def list_add_invoice(session, bus_id):
             return error("Missing required json parameter 'transaction_num'", code=400)
         if 'points' not in data:
             return error("Missing required json parameter 'json'", code=400)
+        if 'base64image' in data:
+            # Attempt to auto-link invoice to customer
+            customer = recognize_face(data['base64image'])
+            if customer is not None:
+                with Database.get_db() as db:
+                    with db.session.begin():
+                        shops_at = db['shops_at']
+                        c_data = db.query(
+                            shops_at.select.where(
+                                (shops_at.c.cust_id == customer) & (shops_at.c.bus_id == session['user'])
+                            )
+                        )
+                        if not len(c_data):
+                            db.insert(
+                                'shops_at',
+                                bus_id=bus_id,
+                                cust_id=session['user'],
+                                points=data['points']
+                            )
+                        else:
+                            db.execute(
+                                shops_at.update.where(
+                                    (shops_at.c.cust_id == customer) & (shops_at.c.bus_id == session['user'])
+                                ).values(
+                                    points=c_data['points'][0] + data['points'][0]
+                                )
+                            )
+                return make_response('OK', 200)
+
         key = get_random_bytes(8).hex()
         with Database.get_db() as db:
             db.insert(
