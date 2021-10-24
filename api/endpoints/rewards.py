@@ -9,8 +9,15 @@ rewards = Blueprint("rewards", __name__)
 @rewards.route('/business/<bus_id>/rewards', methods=["GET", "POST"])
 @authenticated
 def list_or_add_rewards(session, bus_id):
-    if bus_id == 'me' and session['account_type'] == 'business':
-        bus_id = session['user']
+    if bus_id == 'me':
+        if session['account_type'] == 'business':
+            bus_id = session['user']
+        else:
+            return error(
+                "Invalid account type",
+                context="Customer accounts cannot use /business/me",
+                code=403
+            )
     if request.method == 'GET':
         # don't bother checking session type
         # customers and businesses can both view this endpoint

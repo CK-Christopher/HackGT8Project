@@ -2,6 +2,7 @@ from flask import Blueprint, current_app, request, make_response
 from ..db import Database
 from ..utils import error, authenticated
 import sqlalchemy as sqla
+from hashlib import sha256
 import json
 
 customer = Blueprint('customer', __name__, url_prefix="/customer")

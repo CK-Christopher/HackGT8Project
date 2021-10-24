@@ -1,6 +1,7 @@
 from flask import Blueprint, current_app, request, make_response
 from ..db import Database
 from ..utils import error, authenticated
+from hashlib import sha256
 import sqlalchemy as sqla
 business = Blueprint('business', __name__, url_prefix="/business")
 
