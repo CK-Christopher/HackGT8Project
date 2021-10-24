@@ -95,5 +95,8 @@ def profile_image(session):
 def recognize_face(base64image):
     with Database.get_db() as db:
         all_user_faces = db.query(sqla.select(db['user_faces'].c.cust_id, db['user_faces'].c.data).select_from(db['user_faces'].table))
-
-    return find_identity(base64image, all_user_faces)
+    try:
+        return find_identity(base64image, all_user_faces)
+    except:
+        traceback.print_exc()
+        return None

@@ -72,6 +72,12 @@ def get_business(session):
     """
     This endpoint should list the business who the customer has shopped with and the current point values for each of the businesses.
     """
+    if session['account_type'] != 'customer':
+        return error(
+            "Invalid account type",
+            context="This view requires a customer account",
+            code=400
+        )
     with Database.get_db() as db:
         shops_at = db['shops_at']
         user = db['user']
