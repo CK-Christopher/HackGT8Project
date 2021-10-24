@@ -77,6 +77,7 @@ def get_business(session):
         results = db.query(
             sqla.select(
                 user.c.name,
+                user.c.id,
                 shops_at.c.points
             ).select_from(
                 shops_at.table.join(user.table, shops_at.c.bus_id == user.c.id) # get shops_at merged with buisness data
@@ -90,6 +91,7 @@ def get_business(session):
             'businesses': [
                 {
                     'name': row['name'],
+                    'id': row['id'],
                     'points': row['points']
                 }
                 for idx, row in results.iterrows()
