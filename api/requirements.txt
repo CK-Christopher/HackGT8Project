@@ -1,8 +1,10 @@
 sqlalchemy==1.4.1
-pandas==1.2.4
+pandas
 flask==1.1.2
 pymysql
 pycryptodome
 pyjwt
 cryptography
 qrcode[pil]
+deepface
+google-cloud-storage
