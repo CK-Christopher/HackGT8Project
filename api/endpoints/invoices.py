@@ -36,6 +36,7 @@ def list_add_invoice(session, bus_id):
                     'invoices': [
                         {
                             'transaction_num': inv['transaction_num'],
+                            'user_access_key': inv['user_access_key'],
                             'transaction_date': inv['transaction_date'],
                             'points': inv['points']
                         }
@@ -55,6 +56,20 @@ def list_add_invoice(session, bus_id):
             return error("Missing required json parameter 'transaction_num'", code=400)
         if 'points' not in data:
             return error("Missing required json parameter 'json'", code=400)
+        with Database.get_db() as db:
+            invoices = db['invoices']
+            results = db.query(
+                invoices.select.where(
+                    (invoices.c.bus_id == session['user'])
+                    & (invoices.c.transaction_num == data['transaction_num'])
+                )
+            )
+            if len(results):
+                return error(
+                    "Transaction number already in use",
+                    context="Invoice transaction numbers must be unique",
+                    code=409
+                )
         if 'image' in request.files:
             # Attempt to auto-link invoice to customer
             buffer = BytesIO()
@@ -151,7 +166,7 @@ def view_accept_delete_invoices(session, bus_id, inv_id):
                 context="This action requires a customer account",
                 code=400
             )
-        # id must be access key
+        # id must be access keycustomers
         with Database.get_db() as db:
             invoice = db['invoice']
             results = db.query(
