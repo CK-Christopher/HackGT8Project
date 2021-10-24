@@ -179,31 +179,30 @@ def view_accept_delete_invoices(session, bus_id, inv_id):
                     code=404
                 )
             # claim points, then delete
-            with db.session.begin():
-                shops_at = db['shops_at']
-                c_data = db.query(
-                    shops_at.select.where(
-                        (shops_at.c.cust_id == session['user']) & (shops_at.c.bus_id == bus_id)
-                    )
+            shops_at = db['shops_at']
+            c_data = db.query(
+                shops_at.select.where(
+                    (shops_at.c.cust_id == session['user']) & (shops_at.c.bus_id == bus_id)
                 )
-                if not len(c_data):
-                    db.insert(
-                        'shops_at',
-                        bus_id=bus_id,
-                        cust_id=session['user'],
-                        points=results['points'][0]
-                    )
-                else:
-                    db.execute(
-                        shops_at.update.where(
-                            (shops_at.c.cust_id == session['user']) & (shops_at.c.bus_id == bus_id)
-                        ).values(
-                            points=c_data['points'][0] + results['points'][0]
-                        )
-                    )
+            )
+            if not len(c_data):
+                db.insert(
+                    'shops_at',
+                    bus_id=bus_id,
+                    cust_id=session['user'],
+                    points=results['points'][0]
+                )
+            else:
                 db.execute(
-                    invoice.delete.where((invoice.c.bus_id == bus_id) & (invoice.c.user_access_key == inv_id))
+                    shops_at.update.where(
+                        (shops_at.c.cust_id == session['user']) & (shops_at.c.bus_id == bus_id)
+                    ).values(
+                        points=c_data['points'][0] + results['points'][0]
+                    )
                 )
+            db.execute(
+                invoice.delete.where((invoice.c.bus_id == bus_id) & (invoice.c.user_access_key == inv_id))
+            )
             return make_response('OK', 200)
     else:
         # Must be business
