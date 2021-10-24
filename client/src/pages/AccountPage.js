@@ -25,7 +25,6 @@ function AccountPage(props) {
         method: "GET",
       });
       const json = await res.json();
-      console.log(json);
       setUserProfile(json);
     }
   }, []);
@@ -86,7 +85,6 @@ function AccountPage(props) {
 
   const handleSubmit = (event) => {
     const form = event.currentTarget;
-    console.log("submit");
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
@@ -120,7 +118,16 @@ function AccountPage(props) {
               <p className="lead">Configure your account settings here.</p>
             </Col>
             <Col md className="pe-auto">
-              <a className="btn btn-outline-warning float-end" href="/">
+              <a
+                className="btn btn-outline-warning float-end"
+                href="/"
+                onClick={async () => {
+                  const res = await fetch(apiurl + "/auth/logout", {
+                    method: "POST",
+                    credentials: "include",
+                  });
+                }}
+              >
                 <i className="bi bi-box-arrow-right"></i> Sign Out
               </a>
               <a className="btn btn-primary me-2 float-end" href="/">

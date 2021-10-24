@@ -19,7 +19,6 @@ function HomePage(props) {
         method: "GET",
       });
       const json = await res.json();
-      console.log(json);
       setUserProfile(json);
     }
   }, []);

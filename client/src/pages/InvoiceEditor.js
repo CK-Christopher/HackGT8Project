@@ -25,7 +25,7 @@ function InvoiceEditor(props) {
       method: "POST",
       body: data,
     });
-    console.log(res.status);
+
     if (res.status == 409) {
       setLoading({
         status: false,

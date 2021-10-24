@@ -25,7 +25,6 @@ function BusinessPage(props) {
       credentials: "include",
     });
     const json = await res.json();
-    console.log(json);
     setBusinessRewards(json);
   }, []);
   return (

@@ -19,8 +19,6 @@ function SignUp() {
     "/auth/register" +
     (formState.selectAns == "1" ? "/customer" : "/business");
 
-  console.log(route);
-
   const signInIntoAPI = async (form) => {
     const data = new URLSearchParams(new FormData(form));
     const res = await fetch(route, {

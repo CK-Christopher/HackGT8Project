@@ -79,7 +79,6 @@ function RewardsEditor(props) {
       credentials: "include",
     });
     const json = await res.json();
-    console.log(json);
     setReward(json);
   }, []);
 

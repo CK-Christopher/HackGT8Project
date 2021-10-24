@@ -61,7 +61,6 @@ function BusinessDashboard() {
     setShowReward({ show: false, reward: null });
   };
   const handleShow = (index) => {
-    console.log(index);
     setShowReward({ show: true, reward: rewards.rewards[index] });
   };
 
@@ -80,7 +79,6 @@ function BusinessDashboard() {
       method: "GET",
     });
     const json = await res.json();
-    console.log(json);
     setRewards(json);
   }, []);
 
@@ -90,7 +88,6 @@ function BusinessDashboard() {
       method: "GET",
     });
     const json = await res.json();
-    console.log(json);
     setInvoices(json);
   }, []);
 
