@@ -29,7 +29,8 @@ create table if not exists shops_at (
   foreign key (bus_id) references business(id),
   foreign key (cust_id) references customer(id),
   primary key (bus_id, cust_id),
-  points integer unsigned not null default 0
+  points integer unsigned not null default 0,
+  montly_points integer unsigned not null default 0
 );
 
 create table if not exists invoice (

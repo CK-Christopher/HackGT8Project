@@ -90,13 +90,15 @@ def list_add_invoice(session, bus_id):
                                 'shops_at',
                                 bus_id=session['user'],
                                 cust_id=customer,
-                                points=data['points']
+                                points=data['points'],
+                                monthly_points=data['monthly_points']
                             )
                         else:
                             db.execute(
                                 shops_at.update.where(
                                     (shops_at.c.cust_id == customer) & (shops_at.c.bus_id == session['user'])
                                 ).values(
+                                    monthly_points=c_data['points'][0] + int(data['points']),
                                     points=c_data['points'][0] + int(data['points'])
                                 )
                             )

@@ -103,7 +103,8 @@ def get_users(session):
                 'customers': [
                     {
                         'user': row['cust_id'], # anonymize?
-                        'points': row['points']
+                        'points': row['points'],
+                        'monthly_points': row['monthly_points']
                     }
                     for idx, row in results.iterrows()
                 ],

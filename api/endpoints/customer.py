@@ -88,7 +88,8 @@ def get_business(session):
             sqla.select(
                 user.c.name,
                 user.c.id,
-                shops_at.c.points
+                shops_at.c.points,
+                shops_at.c.monthly_points
             ).select_from(
                 shops_at.table.join(user.table, shops_at.c.bus_id == user.c.id) # get shops_at merged with buisness data
             ).where(
@@ -102,7 +103,8 @@ def get_business(session):
                 {
                     'name': row['name'],
                     'id': row['id'],
-                    'points': row['points']
+                    'points': row['points'],
+                    'monthly_points': row['monthly_points']
                 }
                 for idx, row in results.iterrows()
             ]
