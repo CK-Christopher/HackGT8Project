@@ -75,7 +75,7 @@ def get_business(session):
         shops_at = db['shops_at']
         user = db['user']
         results = db.query(
-            sqla.selct(
+            sqla.select(
                 user.c.name,
                 shops_at.c.points
             ).select_from(
@@ -86,12 +86,14 @@ def get_business(session):
         )
 
     return make_response(
-        [
-            {
-                'name': row['name'],
-                'points': row['points']
-            }
-            for idx, row in results.iterrows()
-        ],
+        {
+            'businesses': [
+                {
+                    'name': row['name'],
+                    'points': row['points']
+                }
+                for idx, row in results.iterrows()
+            ]
+        },
         200
     )
