@@ -28,7 +28,7 @@ def list_add_invoice(session, bus_id):
     if request.method == 'GET':
         with Database.get_db() as db:
             invoice = db['invoice']
-            results = db.query(
+            results = db.querEy(
                 invoice.select.where(invoice.c.bus_id == session['user'])
             )
             return make_response(
@@ -100,7 +100,7 @@ def list_add_invoice(session, bus_id):
                                     points=c_data['points'][0] + int(data['points'])
                                 )
                             )
-                return make_response('OK', 200)
+                return make_response('', 204)
 
         key = get_random_bytes(8).hex()
         with Database.get_db() as db:
@@ -142,7 +142,7 @@ def view_accept_delete_invoices(session, bus_id, inv_id):
                 invoice = db['invoice']
                 results = db.query(
                     invoice.select.where((invoice.c.bus_id == session['user']) & (invoice.c.transaction_num == inv_id))
-                )
+                ):
         if not len(results):
             return error(
                 "Invoice not found",
