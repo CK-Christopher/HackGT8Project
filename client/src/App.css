@@ -1,0 +1,117 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.float-right {
+  float: right;
+}
+
+.sign-form-container {
+  width: 400px;
+  height: 100%;
+  margin: auto;
+}
+.award-item,
+.invoice-item {
+  cursor: pointer;
+}
+.award-item:hover,
+.invoice-item:hover,
+.business-item:hover {
+  background-color: azure;
+}
+
+.reward-form-container {
+  width: 500px;
+  height: 100%;
+  margin: auto;
+}
+
+.bg-image {
+  background: url("drmg-loyalty-program.jpg");
+
+  background-size: cover !important;
+  min-height: calc(100vh - 50px);
+}
+
+body::before {
+  display: block;
+  content: "";
+  height: 50px;
+}
+
+.mask {
+  min-height: calc(100vh - 50px);
+  position: relative;
+}
+
+.welcome-box {
+  width: 500px;
+  height: 600px !important;
+  margin: auto;
+  position: relative;
+  text-align: center;
+  top: 50%;
+  border-radius: 50;
+  transform: translate(0, 15%);
+}
+
+.standard-btn {
+  width: 200px !important;
+}
+
+.big-spinner {
+  width: 100px;
+  height: 100px;
+  left: 50%;
+  margin-left: -4em;
+}
+
+.spinner-container {
+  display: flex !important;
+  width: 100vw !important;
+  height: 100vw !important;
+  align-content: center;
+  justify-content: center;
+}
+
+.logo {
+  width: 400px;
+  height: auto;
+  margin: auto;
+}
