@@ -272,6 +272,9 @@ def update_password(session):
 @auth.route("/me")
 @authenticated
 def me(session):
+    """
+    If this method does not return 200, then the current session credentials are not reliable
+    """
     return make_response('"{}"'.format(session['user']), 200)
 
 @auth.route('/delete-account', methods=['DELETE'])
@@ -327,3 +330,13 @@ def logout():
         samesite='Lax'
     )
     return response
+
+@auth.route('/teapot')
+@authenticated
+def teapot(session):
+    if session['account_type'] != 'teapot':
+        return error(
+            "Invalid account type",
+            context="This view requires a teapot account",
+            code=418
+        )

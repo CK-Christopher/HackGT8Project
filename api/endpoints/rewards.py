@@ -191,7 +191,7 @@ def add_image(session, bus_id, r_id):
         return error(
             "Image too large",
             context="Image must not exceed 1 Mib",
-            code=400
+            code=413
         )
     image_file = request.files['image']
     if image_file.content_type is None and '.' in image_file.filename:
