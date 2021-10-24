@@ -65,5 +65,5 @@ create table if not exists user_faces (
   cust_id char(32) not null,
   foreign key (cust_id) references customer(id),
   index (cust_id),
-  data text not null
+  data blob not null
 );

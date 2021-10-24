@@ -1,7 +1,6 @@
 from flask import Blueprint, current_app, request, make_response
 from ..db import Database
 from ..utils import error, authenticated
-from ..fill_tables import fill_tables
 import sqlalchemy as sqla
 
 from deepface import DeepFace
@@ -9,8 +8,13 @@ from deepface.commons import distance as dst
 import time
 import traceback
 import pickle
+from base64 import b64encode
+from io import BytesIO
 
 faces = Blueprint('faces', __name__, url_prefix="/faces")
+
+def load_image(file_obj):
+    return 'data:image/jpeg;base64,'+b64encode(file_obj.read()).decode()
 
 def b64image_to_embedding(b64image):
     model_param = {'model_name': 'VGG-Face',
@@ -34,7 +38,7 @@ def find_identity(b64image, all_user_faces):
 
     distances = []
     for i, row in all_user_faces.iterrows():
-        ref_embedding = pickle.loads(bytes.from_hex(row['data']))
+        ref_embedding = pickle.loads(row['data'])
         distances.append(dst.findCosineDistance(target_embedding, ref_embedding))
     all_user_faces['distances'] = distances
     print(distances)
@@ -47,7 +51,7 @@ def find_identity(b64image, all_user_faces):
     print(f"find identity took {time.time() - st} sec")
     if len(df) == 0:
         return None
-    return df.iloc[0]
+    return df.iloc[0].cust_id
 
 @faces.route('/me', methods=['POST'])
 @authenticated
@@ -58,21 +62,18 @@ def profile_image(session):
             code=403
         )
     if request.method=='POST':
-        if not ("username" in request.form and "b64image" in request.form):
+        if "image" not in request.files:
             return make_response(
-                "Please add username and b64image fields (create_user POST)",
+                "Please add 'image' file (create_user POST)",
                 404
             )
 
-        username = request.form["username"]
-        b64image = request.form["b64image"]
+        buffer = BytesIO()
+        request.files['image'].save(buffer)
+        buffer.seek(0)
+        b64image = load_image(buffer)
 
-        if len(username.strip()) == 0:
-            return make_response(
-                "Username is empty (create_user POST)",
-                404
-            )
-        elif len(b64image.strip()) == 0:
+        if len(b64image.strip()) == 0:
             return make_response(
                 "b64 image is empty (create_user POST)",
                 404
@@ -87,7 +88,7 @@ def profile_image(session):
             db.insert(
                 'user_faces',
                 cust_id=session['user'],
-                data=pickle.dumps(embedding).hex()
+                data=pickle.dumps(embedding)
             )
     return make_response('OK', 200)
 
