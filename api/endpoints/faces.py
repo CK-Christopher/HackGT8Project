@@ -1,7 +1,6 @@
 from flask import Blueprint, current_app, request, make_response
 from ..db import Database
 from ..utils import error, authenticated
-from ..fill_tables import fill_tables
 import sqlalchemy as sqla
 
 from deepface import DeepFace
@@ -34,7 +33,7 @@ def find_identity(b64image, all_user_faces):
 
     distances = []
     for i, row in all_user_faces.iterrows():
-        ref_embedding = pickle.loads(bytes.from_hex(row['data']))
+        ref_embedding = pickle.loads(row['data'])
         distances.append(dst.findCosineDistance(target_embedding, ref_embedding))
     all_user_faces['distances'] = distances
     print(distances)
@@ -47,7 +46,7 @@ def find_identity(b64image, all_user_faces):
     print(f"find identity took {time.time() - st} sec")
     if len(df) == 0:
         return None
-    return df.iloc[0]
+    return df.iloc[0].cust_id
 
 @faces.route('/me', methods=['POST'])
 @authenticated
@@ -58,21 +57,15 @@ def profile_image(session):
             code=403
         )
     if request.method=='POST':
-        if not ("username" in request.form and "b64image" in request.form):
+        if not "b64image" in request.form:
             return make_response(
-                "Please add username and b64image fields (create_user POST)",
+                "Please add b64image fields (create_user POST)",
                 404
             )
 
-        username = request.form["username"]
         b64image = request.form["b64image"]
 
-        if len(username.strip()) == 0:
-            return make_response(
-                "Username is empty (create_user POST)",
-                404
-            )
-        elif len(b64image.strip()) == 0:
+        if len(b64image.strip()) == 0:
             return make_response(
                 "b64 image is empty (create_user POST)",
                 404
@@ -87,7 +80,7 @@ def profile_image(session):
             db.insert(
                 'user_faces',
                 cust_id=session['user'],
-                data=pickle.dumps(embedding).hex()
+                data=pickle.dumps(embedding)
             )
     return make_response('OK', 200)
 

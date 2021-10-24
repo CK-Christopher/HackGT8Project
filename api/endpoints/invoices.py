@@ -68,8 +68,8 @@ def list_add_invoice(session, bus_id):
                         if not len(c_data):
                             db.insert(
                                 'shops_at',
-                                bus_id=bus_id,
-                                cust_id=session['user'],
+                                bus_id=session['user'],
+                                cust_id=customer,
                                 points=data['points']
                             )
                         else:
@@ -77,7 +77,7 @@ def list_add_invoice(session, bus_id):
                                 shops_at.update.where(
                                     (shops_at.c.cust_id == customer) & (shops_at.c.bus_id == session['user'])
                                 ).values(
-                                    points=c_data['points'][0] + data['points'][0]
+                                    points=c_data['points'][0] + data['points']
                                 )
                             )
                 return make_response('OK', 200)
