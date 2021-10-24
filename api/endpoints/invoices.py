@@ -57,11 +57,11 @@ def list_add_invoice(session, bus_id):
         if 'points' not in data:
             return error("Missing required json parameter 'json'", code=400)
         with Database.get_db() as db:
-            invoices = db['invoices']
+            invoice = db['invoice']
             results = db.query(
-                invoices.select.where(
-                    (invoices.c.bus_id == session['user'])
-                    & (invoices.c.transaction_num == data['transaction_num'])
+                invoice.select.where(
+                    (invoice.c.bus_id == session['user'])
+                    & (invoice.c.transaction_num == data['transaction_num'])
                 )
             )
             if len(results):
