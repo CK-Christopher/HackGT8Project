@@ -1,10 +1,11 @@
 from flask import Blueprint, current_app, request, make_response
 from ..db import Database
 from ..utils import error, authenticated
-from .faces import recognize_face
+from .faces import recognize_face, load_image
 from Crypto.Random import get_random_bytes
 from datetime import datetime
 import sqlalchemy as sqla
+from io import BytesIO
 
 invoices = Blueprint("invoices", __name__)
 
@@ -43,19 +44,22 @@ def list_add_invoice(session, bus_id):
                 200
             )
     else:
-        if not request.is_json:
-            return error(
-                "POST request not in JSON format",
-                code=400
-            )
-        data = request.get_json()
+        # if not request.is_json:
+        #     return error(
+        #         "POST request not in JSON format",
+        #         code=400
+        #     )
+        data = request.form
         if 'transaction_num' not in data:
             return error("Missing required json parameter 'transaction_num'", code=400)
         if 'points' not in data:
             return error("Missing required json parameter 'json'", code=400)
-        if 'base64image' in data:
+        if 'image' in request.files:
             # Attempt to auto-link invoice to customer
-            customer = recognize_face(data['base64image'])
+            buffer = BytesIO()
+            request.files['image'].save(buffer)
+            buffer.seek(0)
+            customer = recognize_face(load_image(buffer))
             if customer is not None:
                 with Database.get_db() as db:
                     with db.session.begin():
@@ -77,7 +81,7 @@ def list_add_invoice(session, bus_id):
                                 shops_at.update.where(
                                     (shops_at.c.cust_id == customer) & (shops_at.c.bus_id == session['user'])
                                 ).values(
-                                    points=c_data['points'][0] + data['points']
+                                    points=c_data['points'][0] + int(data['points'])
                                 )
                             )
                 return make_response('OK', 200)

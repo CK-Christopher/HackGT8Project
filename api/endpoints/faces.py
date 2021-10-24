@@ -8,8 +8,13 @@ from deepface.commons import distance as dst
 import time
 import traceback
 import pickle
+from base64 import b64encode
+from io import BytesIO
 
 faces = Blueprint('faces', __name__, url_prefix="/faces")
+
+def load_image(file_obj):
+    return 'data:image/jpeg;base64,'+b64encode(file_obj.read()).decode()
 
 def b64image_to_embedding(b64image):
     model_param = {'model_name': 'VGG-Face',
@@ -57,13 +62,16 @@ def profile_image(session):
             code=403
         )
     if request.method=='POST':
-        if not "b64image" in request.form:
+        if "image" not in request.files:
             return make_response(
-                "Please add b64image fields (create_user POST)",
+                "Please add 'image' file (create_user POST)",
                 404
             )
 
-        b64image = request.form["b64image"]
+        buffer = BytesIO()
+        request.files['image'].save(buffer)
+        buffer.seek(0)
+        b64image = load_image(buffer)
 
         if len(b64image.strip()) == 0:
             return make_response(
