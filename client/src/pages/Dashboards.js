@@ -8,46 +8,42 @@ import apiurl from "../apiurl";
 import { UserContext } from "../App";
 
 function CustomerDashboard(props) {
+  const [businesses, setBusinesses] = useState(null);
+
+  useEffect(async () => {
+    const res = await fetch(apiurl + "/customer/businesses", {
+      credentials: "include",
+      method: "GET",
+    });
+    const json = await res.json();
+    setBusinesses(json);
+  }, []);
+
   return (
     <Container className="pt-4">
-      <h3 className="text-center">Customer Dashboard</h3>
       <ListGroup>
-        <ListGroup.Item
-          as="li"
-          className="d-flex justify-content-between align-items-start"
-        >
-          <div className="ms-2 me-auto">
-            <div className="fw-bold">Andrew's Awesome ML Co.</div>
-            Restaurant
-          </div>
-          <Badge variant="primary" pill>
-            475
-          </Badge>
-        </ListGroup.Item>
-        <ListGroup.Item
-          as="li"
-          className="d-flex justify-content-between align-items-start"
-        >
-          <div className="ms-2 me-auto">
-            <div className="fw-bold">Mum and Dad's Shop</div>
-            Grocery Store
-          </div>
-          <Badge variant="primary" pill>
-            28
-          </Badge>
-        </ListGroup.Item>
-        <ListGroup.Item
-          as="li"
-          className="d-flex justify-content-between align-items-start"
-        >
-          <div className="ms-2 me-auto">
-            <div className="fw-bold">Small Business 3</div>
-            Thrift Shop
-          </div>
-          <Badge variant="primary" pill>
-            30
-          </Badge>
-        </ListGroup.Item>
+        <h3 className="text-center">Customer Dashboard</h3>
+        {!businesses ? (
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        ) : (
+          businesses.businesses.map((business) => (
+            <a href={"/business/" + business.id}>
+              <ListGroup.Item
+                as="li"
+                className="d-flex justify-content-between align-items-start"
+              >
+                <div className="ms-2 me-auto">
+                  <div className="fw-bold">{business.name}</div>
+                </div>
+                <Badge variant="primary" pill>
+                  {business.points}
+                </Badge>
+              </ListGroup.Item>
+            </a>
+          ))
+        )}
       </ListGroup>
     </Container>
   );
@@ -62,7 +58,6 @@ function BusinessDashboard() {
   const [user, setUser] = useContext(UserContext);
 
   const handleClose = (e) => {
-    const index = e.target.key;
     setShowReward({ show: false, reward: null });
   };
   const handleShow = (index) => {
@@ -129,7 +124,6 @@ function BusinessDashboard() {
                 })
               )}
             </ListGroup>
-            <Button className="mt-2 float-right">Clear All</Button>
           </Col>
           <Col md className="col-lg-6">
             <ListGroup>
@@ -206,6 +200,7 @@ function BusinessDashboard() {
 
 function ViewRewardModal(props) {
   const reward = props.reward;
+
   return !reward ? (
     <></>
   ) : (

@@ -11,7 +11,7 @@ function Navigation(props) {
   return (
     <Navbar bg="dark" expand="lg" className="navbar-dark fixed-top">
       <Container>
-        <Navbar.Brand href="/">Rewards Vault</Navbar.Brand>
+        <Navbar.Brand href="/">Rewardr</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">

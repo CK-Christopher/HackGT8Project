@@ -1,15 +1,17 @@
 import { useParams } from "react-router";
 import Navigation from "./Navigation";
-import { Container, Row, Col } from "react-bootstrap";
-import { useContext, useState } from "react";
+import { Container, Row, Col, Spinner } from "react-bootstrap";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../App";
 import { Badge, ListGroup } from "react-bootstrap";
 import { ViewRewardModal } from "./Dashboards";
 import { Modal, Button, Form } from "react-bootstrap";
+import apiurl from "../apiurl";
 
 function BusinessPage(props) {
   const [user, setUser] = useContext(UserContext);
   const [show, setShow] = useState(false);
+  const [businessRewards, setBusinessRewards] = useState(null);
   const handleShow = () => {
     setShow(true);
   };
@@ -17,6 +19,15 @@ function BusinessPage(props) {
     setShow(false);
   };
   const { businessid } = useParams();
+  useEffect(async () => {
+    const res = await fetch(apiurl + "/business/" + businessid + "/rewards", {
+      method: "GET",
+      credentials: "include",
+    });
+    const json = await res.json();
+    console.log(json);
+    setBusinessRewards(json);
+  }, []);
   return (
     <>
       <Navigation />
@@ -49,85 +60,28 @@ function BusinessPage(props) {
         <Container>
           <Row>
             <Col md className="pt-1">
+              <h3>Rewards</h3>
               <ListGroup>
-                <h3>Rewards</h3>
-                <ListGroup.Item
-                  as="li"
-                  className="d-flex justify-content-between align-items-start award-item"
-                  onClick={handleShow}
-                >
-                  <div className="ms-2 me-auto">
-                    <div className="fw-bold">Free T-Shirts</div>
-                  </div>
-                  <Badge bg="success" pill>
-                    475
-                  </Badge>
-                </ListGroup.Item>
-                <ListGroup.Item
-                  as="li"
-                  className="d-flex justify-content-between align-items-start award-item"
-                  onClick={handleShow}
-                >
-                  <div className="ms-2 me-auto">
-                    <div className="fw-bold">Free Donuts</div>
-                  </div>
-                  <Badge bg="success" pill>
-                    28
-                  </Badge>
-                </ListGroup.Item>
-                <ListGroup.Item
-                  as="li"
-                  className="d-flex justify-content-between align-items-start award-item"
-                  onClick={handleShow}
-                >
-                  <div className="ms-2 me-auto">
-                    <div className="fw-bold">Free free free</div>
-                  </div>
-                  <Badge bg="success" pill>
-                    30
-                  </Badge>
-                </ListGroup.Item>
-              </ListGroup>
-            </Col>
-            <Col md className="pt-1">
-              <ListGroup>
-                <h3>Your Invoices</h3>
-                <ListGroup.Item
-                  as="li"
-                  className="d-flex justify-content-between align-items-start award-item"
-                  onClick={handleShow}
-                >
-                  <div className="ms-2 me-auto">
-                    <div className="fw-bold">Free T-Shirts</div>
-                  </div>
-                  <Badge bg="dark" pill>
-                    475
-                  </Badge>
-                </ListGroup.Item>
-                <ListGroup.Item
-                  as="li"
-                  className="d-flex justify-content-between align-items-start award-item"
-                  onClick={handleShow}
-                >
-                  <div className="ms-2 me-auto">
-                    <div className="fw-bold">Free Donuts</div>
-                  </div>
-                  <Badge bg="dark" pill>
-                    28
-                  </Badge>
-                </ListGroup.Item>
-                <ListGroup.Item
-                  as="li"
-                  className="d-flex justify-content-between align-items-start award-item"
-                  onClick={handleShow}
-                >
-                  <div className="ms-2 me-auto">
-                    <div className="fw-bold">Free free free</div>
-                  </div>
-                  <Badge bg="dark" pill>
-                    30
-                  </Badge>
-                </ListGroup.Item>
+                {!businessRewards ? (
+                  <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </Spinner>
+                ) : (
+                  businessRewards.rewards.map((reward) => (
+                    <ListGroup.Item
+                      as="li"
+                      className="d-flex justify-content-between align-items-start award-item"
+                      onClick={handleShow}
+                    >
+                      <div className="ms-2 me-auto">
+                        <div className="fw-bold">{reward.name}</div>
+                      </div>
+                      <Badge bg="success" pill>
+                        {reward.cost}
+                      </Badge>
+                    </ListGroup.Item>
+                  ))
+                )}
               </ListGroup>
             </Col>
           </Row>

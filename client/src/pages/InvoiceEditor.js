@@ -1,4 +1,4 @@
-import { Container } from "react-bootstrap";
+import { Container, Spinner } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import Navigation from "./Navigation";
 import { Form } from "react-bootstrap";
@@ -14,21 +14,35 @@ function InvoiceEditor(props) {
   const [validated, setValidated] = useState(false);
   const handleShow = () => setShowDeleteModal(true);
   const handleClose = () => setShowDeleteModal(false);
+  const [loading, setLoading] = useState({ status: false, result: null });
+  const [qrcodeURL, setQrcodeURL] = useState(null);
 
   const addToInvoiceDB = async (form) => {
-    const data = new URLSearchParams(new FormData(form));
+    const data = new FormData(form);
+    setLoading({ status: true, result: null });
     const res = await fetch(apiurl + "/business/me/invoices", {
-      headers: {
-        "Content-Type": "application/json",
-      },
       credentials: "include",
       method: "POST",
-      body: JSON.stringify({
-        transaction_num: form.transaction_num.value,
-        points: form.points.value,
-      }),
+      body: data,
     });
-    window.location = "/";
+    console.log(res.status);
+    if (res.status == 409) {
+      setLoading({
+        status: false,
+        result: "Transaction Number Already In Use",
+      });
+    } else if (res.status == 204) {
+      window.location = "/";
+    } else {
+      setLoading({
+        status: false,
+        result: "Face Cannot be Idenified. QR Code is Provided Below.",
+      });
+      const imageBlob = await res.blob();
+      const imageObjectURL = URL.createObjectURL(imageBlob);
+      setQrcodeURL(imageObjectURL);
+    }
+    //
   };
 
   const handleSubmit = (event) => {
@@ -79,6 +93,11 @@ function InvoiceEditor(props) {
                 Please enter points greater than or equal to 1
               </Form.Control.Feedback>
             </Form.Group>
+            <Form.Group controlId="formFile" className="mt-3">
+              <Form.Label>Customer Identifying Picture (Optional)</Form.Label>
+              <Form.Control type="file" name="image" />
+              <Form.Text className="text-muted">Must be .jpeg file</Form.Text>
+            </Form.Group>
             <Button type="submit" variant="dark" className="float-right mx-1">
               {mode === "add" ? "Add" : "Update"}
             </Button>
@@ -91,7 +110,15 @@ function InvoiceEditor(props) {
                 Delete
               </Button>
             )}
+            {loading.status && (
+              <Spinner animation="border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+            )}
+            {loading.result && <Form.Text>{loading.result}</Form.Text>}
           </Form>
+
+          {qrcodeURL && <img src={qrcodeURL} className="m-auto d-block"></img>}
         </div>
       </Container>
       <ConfirmDeleteModal

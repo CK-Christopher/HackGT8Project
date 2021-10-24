@@ -47,7 +47,7 @@ function SignUp() {
   return (
     <Container>
       <div className="sign-form-container mt-5">
-        <h2>Sign up to Rewards Vault</h2>
+        <h2>Sign up to Rewardr</h2>
         <Form
           validated={validated}
           onSubmit={handleSubmit}
@@ -120,15 +120,6 @@ function SignUp() {
               </Form.Control.Feedback>
             </Form.Group>
           )}
-          {formState.selectAns == 1 && (
-            <Form.Group controlId="formFile" className="mt-3">
-              <Form.Label>Profile Picture (Optional)</Form.Label>
-              <Form.Control type="file" />
-              <Form.Text className="text-muted">
-                Your profile picture will be used for facial recognition
-              </Form.Text>
-            </Form.Group>
-          )}
           {formState.selectAns == 2 && (
             <Form.Group controlId="formFile" className="mt-3">
               <Form.Label>Location</Form.Label>
@@ -136,6 +127,7 @@ function SignUp() {
                 type="text"
                 placeholder="Enter your business address"
                 name="location"
+                required
               />
               <Form.Text className="text-muted">
                 Customers need to know where your business is
@@ -189,7 +181,7 @@ function SignIn(props) {
   return (
     <Container>
       <div className="sign-form-container mt-5">
-        <h2>Sign in to Rewards Vault</h2>
+        <h2>Sign in to Rewardr</h2>
         <Form validated={validated} noValidate onSubmit={handleSubmit}>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>

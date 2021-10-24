@@ -7,6 +7,7 @@ import { Spinner } from "react-bootstrap";
 import Navigation from "./Navigation";
 import { UserContext } from "../App";
 import apiurl from "../apiurl";
+import logo from "../Rewardr-logos.jpeg";
 
 function HomePage(props) {
   const [user, setUser] = useContext(UserContext);
@@ -34,6 +35,7 @@ function HomePage(props) {
             <div className="welcome-box d-flex justify-content-center align-items-center h-100 bg-secondary">
               <Container className="py-5">
                 <Row className="d-flex align-items-center justify-items-center">
+                  <img className="logo" src={logo} alt="" />
                   <h2>Welcome!</h2>
                   <p className="lead text-white">
                     To use our services, please sign in or create a new account
@@ -63,9 +65,11 @@ function HomePage(props) {
   }
 
   return !userProfile ? (
-    <Spinner animation="border" role="status">
-      <span className="visually-hidden">Loading...</span>
-    </Spinner>
+    <div className="spinner-container">
+      <Spinner animation="border" role="status" className="big-spinner">
+        <span className="visually-hidden">Loading...</span>
+      </Spinner>
+    </div>
   ) : (
     <>
       <Navigation></Navigation>
@@ -74,17 +78,12 @@ function HomePage(props) {
           <Row className="d-flex align-items-center">
             <Col md>
               <h2>Hello {userProfile.name}!</h2>
-              <p className="lead">Do whatever stuff you need to do</p>
-            </Col>
-            <Col md>
-              <h6>Find New Loyalty Programs</h6>
-              <InputGroup className="mb-3">
-                <FormControl
-                  aria-label="Default"
-                  aria-describedby="inputGroup-sizing-default"
-                />
-                <Button variant="primary">Search</Button>
-              </InputGroup>
+              <p className="lead">
+                {" "}
+                {user.account_type == "customer"
+                  ? "Redeem points earned from your shopping to receive rewards from your favorite businesses"
+                  : "Manage your business's loyalty system and its participants, rewards, and invoices"}
+              </p>
             </Col>
           </Row>
         </Container>

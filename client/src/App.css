@@ -51,7 +51,8 @@
   cursor: pointer;
 }
 .award-item:hover,
-.invoice-item:hover {
+.invoice-item:hover,
+.business-item:hover {
   background-color: azure;
 }
 
@@ -81,15 +82,36 @@ body::before {
 
 .welcome-box {
   width: 500px;
-  height: 300px !important;
+  height: 600px !important;
   margin: auto;
   position: relative;
   text-align: center;
   top: 50%;
   border-radius: 50;
-  transform: translate(0, 25%);
+  transform: translate(0, 15%);
 }
 
 .standard-btn {
   width: 200px !important;
+}
+
+.big-spinner {
+  width: 100px;
+  height: 100px;
+  left: 50%;
+  margin-left: -4em;
+}
+
+.spinner-container {
+  display: flex !important;
+  width: 100vw !important;
+  height: 100vw !important;
+  align-content: center;
+  justify-content: center;
+}
+
+.logo {
+  width: 400px;
+  height: auto;
+  margin: auto;
 }
