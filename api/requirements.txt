@@ -5,5 +5,6 @@ pymysql
 pycryptodome
 pyjwt
 cryptography
+qrcode[pil]
 deepface
 google-cloud-storage
