@@ -18,7 +18,8 @@ create table if not exists business (
 
 create table if not exists customer (
   id char(32) primary key,
-  foreign key (id) references user(id)
+  foreign key (id) references user(id),
+  last_login_date DATE
 );
 
 
@@ -38,7 +39,8 @@ create table if not exists invoice (
   user_access_key char(16) not null,
   foreign key (bus_id) references business(id),
   transaction_date datetime not null,
-  points integer unsigned not null
+  points integer unsigned not null,
+  received_rewards bit not null default 0
 );
 
 create table if not exists rewards (

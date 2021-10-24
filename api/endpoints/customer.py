@@ -1,9 +1,12 @@
+import datetime
+
 from flask import Blueprint, current_app, request, make_response
 from ..db import Database
 from ..utils import error, authenticated
 import sqlalchemy as sqla
 from hashlib import sha256
 import json
+from datetime import datetime
 
 customer = Blueprint('customer', __name__, url_prefix="/customer")
 
@@ -106,3 +109,31 @@ def get_business(session):
         },
         200
     )
+
+@customer.route('/check_daily_spin')
+@authenticated
+def check_daily_spin(session):
+    if session['account_type'] != 'customer':
+        return error(
+            "Invalid account type",
+            context="This view requires a customer account",
+            code=400
+        )
+    with Database.get_db() as db:
+        customer = db['customer']
+        result = db.query(
+            sqla.select(
+                customer.c.id,
+                customer.c.last_login_date,
+            ).where(
+                customer.c.id == session['user']
+            )
+        )
+
+        db.execute(db['customer'].update.where(
+                customer.c.id == session['user']).values(
+                last_login_date=datetime.now()))
+
+        if result.loc[0, 'last_login_date'] is None or (datetime.now() - result.loc[0, 'last_login_date']).days > 0:
+            return make_response("you get a free spin!", 200)
+    return make_response("no free spin :(", 200)
