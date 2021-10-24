@@ -152,6 +152,7 @@ def view_modify_delete_rewards(session, bus_id, r_id):
             if 'description' in data:
                 updates['description'] = data['description']
             db.execute(rewards.update.where(rewards.c.id == r_id).values(**updates))
+            return make_response('OK', 200)
         else:
             # check bus_id == session[user] to enforce ownership
             if bus_id != session['user']:
